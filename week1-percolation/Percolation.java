@@ -9,6 +9,7 @@ public class Percolation {
     private WeightedQuickUnionUF gridUF;
     private boolean[] grid;
     private int openSites;
+    private WeightedQuickUnionUF fullUF;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -23,6 +24,7 @@ public class Percolation {
             grid[i] = false;
         }
         gridUF = new WeightedQuickUnionUF(n*n+2);
+        fullUF = new WeightedQuickUnionUF(n*n+1);
         openSites = 0;
     }
 
@@ -60,7 +62,7 @@ public class Percolation {
         }
         */
         if (validate2DIndex(row, col)) {
-            return gridUF.find(0) == gridUF.find(index(row, col));
+            return fullUF.find(0) == fullUF.find(index(row, col));
         }
         return false;
     }
@@ -111,6 +113,7 @@ public class Percolation {
         int curr = index(row, col);
 
         gridUF.union(left, curr);
+        fullUF.union(left, curr);
     }
     private void unionRight(int row, int col) {
         if (col == dimension || !isOpen(row, col+1)) {
@@ -121,14 +124,17 @@ public class Percolation {
         int curr = index(row, col);
 
         gridUF.union(right, curr);
+        fullUF.union(right, curr);
     }
     private void unionUp(int row, int col) {
         int curr = index(row, col);
         if (row == 1) {
             gridUF.union(0, curr);
+            fullUF.union(0, curr);
         } else if (isOpen(row-1, col)) {
             int up = index(row-1, col);
             gridUF.union(curr, up);
+            fullUF.union(curr, up);
         }
     }
     private void unionDown(int row, int col) {
@@ -138,6 +144,7 @@ public class Percolation {
         } else if (isOpen(row+1, col)) {
             int down = index(row+1, col);
             gridUF.union(down, curr);
+            fullUF.union(down, curr);
         }
     }
 
