@@ -1,0 +1,13 @@
+/.idea
+/.lift
+*.jar
+*.xml
+*.png
+*.txt
+*.class
+InteractivePercolationVisualizer.*
+PercolationVisualizer.*
+*.zip
+Test.*
+*.iml
+CREDITS
