@@ -1,21 +1,16 @@
-import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.StdStats;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 import edu.princeton.cs.algs4.StdOut;
-import java.lang.IllegalArgumentException;
 
 public class Percolation {
-    private int dimension;
-    private WeightedQuickUnionUF gridUF;
-    private boolean[] grid;
+    private final int dimension;
+    private final boolean[] grid;
+    private final WeightedQuickUnionUF gridUF;
+    private final WeightedQuickUnionUF fullUF;
     private int openSites;
-    private WeightedQuickUnionUF fullUF;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
         if (n <= 0) throw new IllegalArgumentException("index out of bound");
-
-        //StdOut.println("Initializing with n = " + n);
 
         // Initialization begins
         dimension = n;
@@ -30,9 +25,7 @@ public class Percolation {
 
     // opens the site (row, col) if it is not open already
     public void open(int row, int col) {
-        //StdOut.println("Try to open (" + row + ", " + col + "");
         if (validate2DIndex(row, col)) {
-            //StdOut.println("Valid input. Grid opened.");
             int gridIndex = index(row, col);
             if (!grid[gridIndex]) openSites++;
             grid[gridIndex] = true;
@@ -43,8 +36,6 @@ public class Percolation {
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         if (validate2DIndex(row, col)) {
-            //StdOut.println("(" + row + ", " + col + ") - " + 
-                //(grid[index(row, col)] ? "Opened" : "Closed"));
             return grid[index(row, col)];
         }
         return false;
@@ -52,15 +43,6 @@ public class Percolation {
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
-        /*
-        if (false && row == 1 && col == 1) {
-            StdOut.println("(" + row + ", " + col + ") - " + 
-                (grid[index(row, col)] ? "Opened" : "Closed"));
-            StdOut.println("(" + row + ", " + col + ") - " + 
-                (gridUF.find(0) == gridUF.find(index(row, col)) 
-                    ? "Full" : "Not full"));
-        }
-        */
         if (validate2DIndex(row, col)) {
             return fullUF.find(0) == fullUF.find(index(row, col));
         }

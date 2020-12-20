@@ -1,14 +1,11 @@
-import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
 
-    private double[] results;
-    //private int tries = 0;
+    private static final double CONFIDENCE_95_FACTOR = 1.96;
+    private final double[] results;
 
     // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -21,10 +18,8 @@ public class PercolationStats {
 
         // independent trials
         for (int i = 0; i < trials; i++) {
-            //StdOut.println("Iteration #" + i + " begins...");
             Percolation perc = new Percolation(n);
             boolean done = false;
-            //iterate(perc, n);
             while (!done) {
                 done = iterate(perc, n);
             }
@@ -32,9 +27,7 @@ public class PercolationStats {
             double numberOfOpenSites = (double) perc.numberOfOpenSites();
             double result = numberOfOpenSites / (n * n);
             results[i] = result;
-            //StdOut.println("number of tries to find a open site: " + tries);
         }
-        //StdOut.println("average tries: " + tries/trials);
     }
 
     // sample mean of percolation threshold
@@ -49,12 +42,12 @@ public class PercolationStats {
 
     // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        return mean() - 1.96 * stddev() / Math.sqrt(results.length);
+        return mean() - CONFIDENCE_95_FACTOR * stddev() / Math.sqrt(results.length);
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        return mean() + 1.96 * stddev() / Math.sqrt(results.length);
+        return mean() + CONFIDENCE_95_FACTOR * stddev() / Math.sqrt(results.length);
     }
 
     /*
@@ -72,9 +65,9 @@ public class PercolationStats {
 
         if (perc.percolates()) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
     
     // test client (see below)
