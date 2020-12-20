@@ -49,6 +49,7 @@ public class Percolation {
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
+        /*
         if (false && row == 1 && col == 1) {
             StdOut.println("(" + row + ", " + col + ") - " + 
                 (grid[index(row, col)] ? "Opened" : "Closed"));
@@ -56,6 +57,7 @@ public class Percolation {
                 (gridUF.find(0) == gridUF.find(index(row, col)) 
                     ? "Full" : "Not full"));
         }
+        */
         return gridUF.find(0) == gridUF.find(index(row, col));
     }
 

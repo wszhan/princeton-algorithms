@@ -29,7 +29,7 @@ public class PercolationStats {
                 done = iterate(perc, n);
             }
             // Percolates
-            double numberOfOpenSites = (double)perc.numberOfOpenSites();
+            double numberOfOpenSites = (double) perc.numberOfOpenSites();
             double result = numberOfOpenSites / (n * n);
             results[i] = result;
             //StdOut.println("number of tries to find a open site: " + tries);
