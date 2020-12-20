@@ -130,9 +130,7 @@ public class Percolation {
     private void unionDown(int row, int col) {
         int curr = index(row, col);
         if (row == dimension) {
-            if (isFull(row, col)) {
-                gridUF.union(dimension*dimension+1, curr);
-            }
+            gridUF.union(dimension*dimension+1, curr);
         } else if (isOpen(row+1, col)) {
             int down = index(row+1, col);
             gridUF.union(down, curr);
