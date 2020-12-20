@@ -31,8 +31,9 @@ public class Percolation {
         //StdOut.println("Try to open (" + row + ", " + col + "");
         if (validate2DIndex(row, col)) {
             //StdOut.println("Valid input. Grid opened.");
-            grid[index(row, col)] = true;
-            openSites++;
+            int gridIndex = index(row, col);
+            if (!grid[gridIndex]) openSites++;
+            grid[gridIndex] = true;
             unionAfterOpen(row, col);
         }
     }
@@ -58,7 +59,10 @@ public class Percolation {
                     ? "Full" : "Not full"));
         }
         */
-        return gridUF.find(0) == gridUF.find(index(row, col));
+        if (validate2DIndex(row, col)) {
+            return gridUF.find(0) == gridUF.find(index(row, col));
+        }
+        return false;
     }
 
     // returns the number of open sites
