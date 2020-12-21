@@ -3,7 +3,6 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Percolation {
     private final int dimension;
-    //private final boolean[] grid;
     private final WeightedQuickUnionUF gridUF;
     private boolean percolationFlag;
     //private final WeightedQuickUnionUF fullUF;
@@ -19,23 +18,29 @@ public class Percolation {
     // e.g. 0000 0111 = 7
     // BE AWARE that if a site is connected to the bottom/top, it is also
     // implicitly open, so the last bit would be 1.
-    private char[] connectivityStates;
+    private final char[] connectivityStates;
     private int openSites;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
         if (n <= 0) throw new IllegalArgumentException("Illegal initiation.");
 
-        // Initialization begins
+        // init fields
         dimension = n;
-        connectivityStates = new char[n*n+2];
-        percolationFlag = false;
         openSites = 0;
-        gridUF = new WeightedQuickUnionUF(n*n+2);
 
-        for (int i = 1; i < n*n+1; i++) {
+        // init flag
+        percolationFlag = false;
+        
+        // init state arrays
+        connectivityStates = new char[n*n];
+
+        for (int i = 1; i < n*n; i++) {
             connectivityStates[i] = (char) 0;
         }
+
+        // init UF data structure
+        gridUF = new WeightedQuickUnionUF(n*n);
     }
 
     // opens the site (row, col) if it is not open already
@@ -50,6 +55,8 @@ public class Percolation {
                 else if (row == dimension) state = (char) 3;
                 else state = (char) 1;
 
+                // update the root state of the current site
+                // before union and update adjacent sites
                 connectivityStates[gridIndex] = state;
                 unionAfterOpen(row, col);
 
@@ -61,7 +68,6 @@ public class Percolation {
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         if (validate2DIndex(row, col)) {
-            boolean open = connectivityStates[index(row, col)] > 0;
             int state = (int) connectivityStates[index(row, col)];
             return state > 0;
         }
@@ -92,12 +98,12 @@ public class Percolation {
         return percolationFlag;
     }
 
-    /*
+    /* ===================================
     private helper methods
-    */
+    ==================================== */ 
     // convert 2d index = 1d index
     private int index(int row, int col) {
-        return (row - 1) * dimension + col;
+        return (row - 1) * dimension + (col - 1);
     }
     
     // validate two-dimensional index
@@ -106,8 +112,9 @@ public class Percolation {
         if (row >= 1 && row <= dimension &&
             col >= 1 && col <= dimension) {
                 return true;
-            }
-        throw new IllegalArgumentException("index out of bound");
+        } else {
+            throw new IllegalArgumentException("index out of bound");
+        }
     }
 
     // union after open
@@ -134,8 +141,6 @@ public class Percolation {
                     // after union (root of one set must be changed)
                     int currIndex = index(row, col);
                     int currRoot = gridUF.find(currIndex);
-
-                    // previous states
                     char prevCurrState = connectivityStates[currRoot];
 
                     // union and root is updated
@@ -147,12 +152,14 @@ public class Percolation {
                         prevCurrState | prevAdjacentState
                     );
                     
+                    // percolates only when a state of 0000 011x occurs
                     if (connectivityStates[newRoot] == 7) {
                         percolationFlag = true;
                     }
                 }
             }
         } catch (IllegalArgumentException e) {
+            // avoid interruption of validation
             return;
         }
     }
