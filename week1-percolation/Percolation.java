@@ -49,18 +49,27 @@ public class Percolation {
             // if the site is already open, do nothing;
             // otherwise, update relevant values
             if (!isOpen(row, col)) {
-                int gridIndex = index(row, col);
+                int currIndex = index(row, col);
                 char state;
-                if (row == 1) state = (char) 5;
+                if (dimension == 1) state = (char) 7;
+                else if (row == 1) state = (char) 5;
                 else if (row == dimension) state = (char) 3;
                 else state = (char) 1;
 
                 // update the root state of the current site
                 // before union and update adjacent sites
-                connectivityStates[gridIndex] = state;
+                connectivityStates[currIndex] = state;
                 unionAfterOpen(row, col);
 
                 openSites++;
+
+                // check percolation every time after open/union
+                // percolates only when a state of 0000 011x occurs
+                int currRoot = gridUF.find(currIndex);
+                int currState = (int) connectivityStates[currRoot];
+                if (currState == 7) {
+                    percolationFlag = true;
+                }
             }
         }
     }
@@ -151,11 +160,6 @@ public class Percolation {
                     connectivityStates[newRoot] = (char) (
                         prevCurrState | prevAdjacentState
                     );
-                    
-                    // percolates only when a state of 0000 011x occurs
-                    if (connectivityStates[newRoot] == 7) {
-                        percolationFlag = true;
-                    }
                 }
             }
         } catch (IllegalArgumentException e) {
