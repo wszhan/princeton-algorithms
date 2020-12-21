@@ -3,40 +3,67 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Percolation {
     private final int dimension;
-    private final boolean[] grid;
+    //private final boolean[] grid;
     private final WeightedQuickUnionUF gridUF;
-    private final WeightedQuickUnionUF fullUF;
+    private boolean percolationFlag;
+    //private final WeightedQuickUnionUF fullUF;
+    // 8-bit representation: 0000 0000
+    // the lower bit for open/blocked: 1 for open and 0 for blocked.
+    // e.g. open: 0000 0001 = 1; close: 0000 0000 = 0
+    // the 2nd bit for connectivity to any site at the BOTTOM:
+    // e.g. 0000 0011 = 3
+    // the 3rd bit for connectivity to any site at the TOP:
+    // e.g. 0000 0101 = 5
+    // percolation equals the state of a set having connectivity 
+    // simultaneously to BOTTOM and TOP:
+    // e.g. 0000 0111 = 7
+    // BE AWARE that if a site is connected to the bottom/top, it is also
+    // implicitly open, so the last bit would be 1.
+    private char[] connectivityStates;
     private int openSites;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
-        if (n <= 0) throw new IllegalArgumentException("index out of bound");
+        if (n <= 0) throw new IllegalArgumentException("Illegal initiation.");
 
         // Initialization begins
         dimension = n;
-        grid = new boolean[n*n+2];
-        for (int i = 1; i < n*n+1; i++) {
-            grid[i] = false;
-        }
-        gridUF = new WeightedQuickUnionUF(n*n+2);
-        fullUF = new WeightedQuickUnionUF(n*n+1);
+        connectivityStates = new char[n*n+2];
+        percolationFlag = false;
         openSites = 0;
+        gridUF = new WeightedQuickUnionUF(n*n+2);
+
+        for (int i = 1; i < n*n+1; i++) {
+            connectivityStates[i] = (char) 0;
+        }
     }
 
     // opens the site (row, col) if it is not open already
     public void open(int row, int col) {
         if (validate2DIndex(row, col)) {
-            int gridIndex = index(row, col);
-            if (!grid[gridIndex]) openSites++;
-            grid[gridIndex] = true;
-            unionAfterOpen(row, col);
+            // if the site is already open, do nothing;
+            // otherwise, update relevant values
+            if (!isOpen(row, col)) {
+                int gridIndex = index(row, col);
+                char state;
+                if (row == 1) state = (char) 5;
+                else if (row == dimension) state = (char) 3;
+                else state = (char) 1;
+
+                connectivityStates[gridIndex] = state;
+                unionAfterOpen(row, col);
+
+                openSites++;
+            }
         }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         if (validate2DIndex(row, col)) {
-            return grid[index(row, col)];
+            boolean open = connectivityStates[index(row, col)] > 0;
+            int state = (int) connectivityStates[index(row, col)];
+            return state > 0;
         }
         return false;
     }
@@ -44,8 +71,14 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         if (validate2DIndex(row, col)) {
-            return fullUF.find(0) == fullUF.find(index(row, col));
+            int currIndex = index(row, col);
+            int rootIndex = gridUF.find(currIndex);
+            int rootState = (int) connectivityStates[rootIndex];
+            if (rootState >= 5) {
+                return true;
+            }        
         }
+        
         return false;
     }
 
@@ -56,7 +89,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return gridUF.find(0) == gridUF.find(1 + dimension * dimension);
+        return percolationFlag;
     }
 
     /*
@@ -79,70 +112,61 @@ public class Percolation {
 
     // union after open
     private void unionAfterOpen(int row, int col) {
-        unionLeft(row, col);
-        unionRight(row, col);
-        unionUp(row, col);
-        unionDown(row, col);
+        // union left
+        unionAdjacent(row, col, 0, -1); 
+        // union right 
+        unionAdjacent(row, col, 0, 1); 
+        // union up
+        unionAdjacent(row, col, -1, 0);
+        // union down
+        unionAdjacent(row, col, 1, 0);
     }
 
-    // check adjacent grids and union if any is openj
-    private void unionLeft(int row, int col) {
-        if (col == 1 || !isOpen(row, col-1)) {
+    private void unionAdjacent(int row, int col, int verticalOffset, int horizontalOffset) {
+        try {
+            if (validate2DIndex(row + verticalOffset, col + horizontalOffset)) {
+                int adjacentIndex = index(row + verticalOffset, col + horizontalOffset);
+                int adjacentRoot = gridUF.find(adjacentIndex);
+                char prevAdjacentState = connectivityStates[adjacentRoot];
+
+                if ((int) prevAdjacentState != 0) {
+                    // Temp vars for root index in case of losing info
+                    // after union (root of one set must be changed)
+                    int currIndex = index(row, col);
+                    int currRoot = gridUF.find(currIndex);
+
+                    // previous states
+                    char prevCurrState = connectivityStates[currRoot];
+
+                    // union and root is updated
+                    gridUF.union(currIndex, adjacentIndex);
+                    int newRoot = gridUF.find(currIndex);
+
+                    // update states
+                    connectivityStates[newRoot] = (char) (
+                        prevCurrState | prevAdjacentState
+                    );
+                    
+                    if (connectivityStates[newRoot] == 7) {
+                        percolationFlag = true;
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
             return;
-        }
-
-        int left = index(row, col-1);
-        int curr = index(row, col);
-
-        gridUF.union(left, curr);
-        fullUF.union(left, curr);
-    }
-    private void unionRight(int row, int col) {
-        if (col == dimension || !isOpen(row, col+1)) {
-            return;
-        }
-
-        int right = index(row, col+1);
-        int curr = index(row, col);
-
-        gridUF.union(right, curr);
-        fullUF.union(right, curr);
-    }
-    private void unionUp(int row, int col) {
-        int curr = index(row, col);
-        if (row == 1) {
-            gridUF.union(0, curr);
-            fullUF.union(0, curr);
-        } else if (isOpen(row-1, col)) {
-            int up = index(row-1, col);
-            gridUF.union(curr, up);
-            fullUF.union(curr, up);
-        }
-    }
-    private void unionDown(int row, int col) {
-        int curr = index(row, col);
-        if (row == dimension) {
-            gridUF.union(dimension*dimension+1, curr);
-        } else if (isOpen(row+1, col)) {
-            int down = index(row+1, col);
-            gridUF.union(down, curr);
-            fullUF.union(down, curr);
         }
     }
 
     // test client (optional)
     public static void main(String[] args) {
-        if (args.length == 1) {
-            int n = Integer.parseInt(args[0]);
-            Percolation perc = new Percolation(n);
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    if (perc.isOpen(i, j)) {
-                        StdOut.println("i - " + i + "; open - " + 
-                            perc.isOpen(i, j));
-                    }
-                }
-            }
-        }
+        char block = (char) 0; // 0000 0000
+        char open = (char) 1; // 0000 0001
+        char hasTop = (char) 5; // 0000 0101 implicitly open
+        char hasBottom = (char) 3; // 0000 0011 also implicitly open
+        // union a normal block with a block connected to the top
+        char unionTop = (char) (open | hasTop);
+        // union a normal block with a block connected to the bottom 
+        char unionBottom = (char) (open | hasBottom);
+        StdOut.println((int) unionBottom);
     }
 }
