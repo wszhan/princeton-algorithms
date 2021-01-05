@@ -1,10 +1,30 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdRandom;
 
 public class Permutation {
    public static void main(String[] args) {
       if (args.length == 1) {
+         RandomizedQueue<String> rq = new RandomizedQueue<>();
+         int k = Integer.parseInt(args[0]);
+         boolean full = false;
+
+         while (!StdIn.isEmpty()) {
+            String s = StdIn.readString();
+            rq.enqueue(s);
+            if (k > 0) {
+               k--;
+            } else {
+               rq.dequeue();
+            }
+         }
+
+         for (String s : rq) {
+            StdOut.println(s);
+         }
+
+      } if (args.length == 2) {
          RandomizedQueue<String> rq = new RandomizedQueue<>();
          int k = Integer.parseInt(args[0]);
          // In in = new In(args[0]);
