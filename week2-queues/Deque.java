@@ -14,13 +14,15 @@ public class Deque<Item> implements Iterable<Item> {
 
         private Node(Item value) {
             this.value = value;
-            this.prev = this.next = null;
+            this.prev = null;
+            this.next = null;
         }
     }
 
     // construct an empty deque
     public Deque() {
-        first = last = null;
+        first = null;
+        last = null;
         length = 0;
     }
 
@@ -69,9 +71,15 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException("remove null from first");
         }
 
-        first = first.next;
+        first = first.next; // first.next could be null
         Item firstItem = oldFirst.value;
-        oldFirst = null; // to be collected by GC
+        // if the new first != null, first.prev should be null 
+        if (first != null) {
+            first.prev = null;
+        } else {
+            last = null;
+        }
+
         length--;
         return firstItem;
     }
@@ -84,10 +92,17 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException("remove null from last");
         }
 
-        last = last.prev;
+        last = last.prev; // last.prev could be null (only 1 element before removing)
         Item lastItem = oldLast.value;
-        oldLast = null; // to be collected by GC
+        // if the new last != null, last.next should be null
+        if (last != null) {
+            last.next = null;
+        } else {
+            first = null;
+        }
+
         length--;
+
         return lastItem;
     }
 
@@ -98,13 +113,20 @@ public class Deque<Item> implements Iterable<Item> {
 
     private class DequeIterator implements Iterator<Item> {
         private Node current = first;
-        private int i = length;
 
-        public boolean hasNext() { return current != null;}
+        public boolean hasNext() { return current != null; }
+
         public Item next() {
+            if (!hasNext()) throw new NoSuchElementException("No more elements");
+
             Item item = current.value;
             current = current.next;
+
             return item;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("No remove operation in iterator");
         }
     }
 
@@ -113,7 +135,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (args.length > 0) {
             In in = new In(args[0]);
             Deque<String> dq = new Deque<>();
-            int i = 1;
+            int i = 0;
 
             while (!in.isEmpty()) {
                 String s = in.readString();
@@ -122,13 +144,29 @@ public class Deque<Item> implements Iterable<Item> {
                 i++;
             }
 
+            StdOut.println("i - " + i);
+            StdOut.println("iterating...");
             for (String s : dq) {
                 StdOut.println(s);
             }
-        } else {
-            StdOut.println("No input file.");
-        }
 
-        return ;
+            while (i > 0) {
+                String s = dq.removeLast();
+                StdOut.println("removing item #" + i + " - " + s);
+                i--;
+            }
+        } else {
+            Deque<Integer> deque = new Deque<>();
+
+            deque.addLast(1);
+            //deque.addLast(3);
+            Integer i = deque.removeLast();
+            StdOut.println("Removed: " + i);
+
+            StdOut.println("iterating...");
+            for (Integer s : deque) {
+                StdOut.println(s);
+            }
+        }
     }
 }
