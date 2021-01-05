@@ -159,7 +159,7 @@ public class Deque<Item> implements Iterable<Item> {
             Deque<Integer> deque = new Deque<>();
 
             deque.addLast(1);
-            //deque.addLast(3);
+            // deque.addLast(3);
             Integer i = deque.removeLast();
             StdOut.println("Removed: " + i);
 
