@@ -9,6 +9,8 @@
  ******************************************************************************/
 
 import java.util.Comparator;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.Arrays;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
@@ -108,9 +110,20 @@ public class Point implements Comparable<Point> {
      */
     public Comparator<Point> slopeOrder() {
         /* YOUR CODE HERE */
-        return null;
+        return new BySlope();
     }
 
+    /* BySlope comparator */
+    private class BySlope implements Comparator<Point> {
+        public int compare(Point p1, Point p2) {
+            double slopeWP1 = slopeTo(p1);
+            double slopeWP2 = slopeTo(p2);
+
+            if (slopeWP1 == slopeWP2) return 0;
+            else if (slopeWP1 > slopeWP2) return 1;
+            else return -1;
+        }
+    }
 
     /**
      * Returns a string representation of this point.
@@ -132,6 +145,7 @@ public class Point implements Comparable<Point> {
         /*
         Point p1 = new Point(0, 0);
         Point p2 = new Point(1, 1);
+        Point p3 = new Point(0, 1);
 
         //double slope = p1.slopeTo(p2);
         double slope = p2.slopeTo(p1);
@@ -139,11 +153,31 @@ public class Point implements Comparable<Point> {
         */
 
         /* natural order comparison */
-        Point p1 = new Point(3, 1);
-        Point p2 = new Point(2, 1);
 
+        /*
+        Point p1 = new Point(0, 0);
+        Point p2 = new Point(1, 1);
         //double slope = p1.slopeTo(p2);
         int naturalOrder = p1.compareTo(p2);
         System.out.println("p1.compareTo(p2) : " + naturalOrder);
+        */
+
+        /* comparator */
+        /*
+        Point p0 = new Point(0, 0);
+        Point p3 = new Point(0, 0); // slope with p0: negative infinity
+        Point p6 = new Point(3, -9); // slope with p0: -3 
+        Point p4 = new Point(3, 0); // slope with p0: 0 
+        Point p1 = new Point(1, 1); // slope with p0: 1
+        Point p5 = new Point(1, 2); // slope with p0: 2 
+        Point p2 = new Point(0, 1); // slope with p0: positive infinity
+
+        Point[] points = {p1, p2, p3, p4, p5, p6};
+        Arrays.sort(points, p0.slopeOrder());
+        System.out.println("points sorted by slope with p0 = (0, 0)");
+        for (Point p : points) {
+            System.out.printf("%s\t", p);
+        }
+        */
     }
 }
