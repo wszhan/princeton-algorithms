@@ -3,9 +3,12 @@
 /java
 /notes
 /1.4-analysis-of-algs
+/2.1-*
+/2.2-*
 
 */.*
 
+*.xlsx
 *.iml
 *.txt
 *.png
