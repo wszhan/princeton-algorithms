@@ -69,7 +69,17 @@ public class Point implements Comparable<Point> {
         } else if (this.y == that.y) {
             return +0.0;
         } else {
-            return (that.y - this.y) / (that.x - this.x);
+            /*
+            x and y are ints, hence the division will be truncated since
+            it happens between integers, before the result being converted
+            to double.
+            Therefore, explicit casting must be done before the operation occurs to
+            avoid losing information. Otherwise, the slope can be totally 
+            wrong. For example, if no casting is introduced before the division,
+            the slope of (1234, 5678) and (19000, 10000) is 0 before casting, and
+            0.0 after casting.
+            */
+            return (double) (that.y - this.y) / (that.x - this.x);
         }
     }
 
