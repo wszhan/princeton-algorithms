@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import edu.princeton.cs.algs4.*;
+// import edu.princeton.cs.algs4.*;
 // import javax.sound.sampled.Line;
 
 public class FastCollinearPoints {
@@ -87,48 +87,50 @@ public class FastCollinearPoints {
                     collinearPoints[temp-i] = p;
                     Arrays.sort(collinearPoints);
                     if (p.compareTo(collinearPoints[0]) == 0 
-                        || p.compareTo(collinearPoints[collinearPoints.length-1]) == 0
+                        // || p.compareTo(collinearPoints[collinearPoints.length-1]) == 0
                         ) {
                             LineSegment newSegment = new LineSegment(
                                 collinearPoints[0], 
                                 collinearPoints[collinearPoints.length-1] 
                                 );
                             list.add(newSegment);
-                            if (newSegment.toString().contains(
-                                "(9000, 6000)")
-                                //"(13000, 0) -> (9000, 6000)")
-                                //"(10000, 0) -> (30000, 0)")
-                                ) {
-                                    System.out.printf(
-                                        "new segment \"%s\" is added.\nCurrent point: %s\npoints on both ends:\n- %s\n- %s\npoint in the mid:%s\nvalue (i, j): %d, %d\n",
-                                        newSegment,
-                                        p,
-                                        collinearPoints[0],
-                                        collinearPoints[2],
-                                        collinearPoints[1],
-                                        i,
-                                        j
-                                    );
+                            // if (false && newSegment.toString().contains(
+                                // // "(9000, 6000)")
+                                // // "(13000, 0) -> (9000, 6000)")
+                                // "(10000, 0) -> (30000, 0)")
+                                // ) {
+                                    // System.out.printf(
+                                        // "new segment \"%s\" is added.\nCurrent point: %s\npoints on both ends:\n- %s\n- %s\nvalue (i, j): %d, %d\n",
+                                        // newSegment,
+                                        // p,
+                                        // collinearPoints[0],
+                                        // collinearPoints[collinearPoints.length-1],
+                                        // i,
+                                        // j
+                                    // );
 
-                                    for (int k = 0; k < points.length; k++) {
-                                        System.out.printf("index %d - point -> %s\n",
-                                        k, points[k]);
-                                    }
-                                }
+                                    // for (int k = 0; k < points.length; k++) {
+                                        // System.out.printf("index %d - point -> %s\n",
+                                        // k, points[k]);
+                                    // }
+                                // }
                         }
-                        doNothing();
                 }
             }
         }
     }
-
-    private void doNothing() {}
 
     public int numberOfSegments() {
         if (this.lineSegments != null) return this.lineSegments.length;
         else return 0;
     }
 
+    /*
+    the line segments
+    Do not expose internal field through getter/setter, especially the internal field
+    is declared private. Otherwise, this serves a way to modify data through even getter.
+    Use a defensive approach.
+    */
     public LineSegment[] segments() {
         LineSegment[] segmentsCopy = Arrays.copyOf(this.lineSegments, 
                                                     this.lineSegments.length);

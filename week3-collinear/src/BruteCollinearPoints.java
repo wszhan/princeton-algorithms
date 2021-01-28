@@ -19,6 +19,13 @@ public class BruteCollinearPoints {
         // Arrays.sort(points);
         // points[1] = null;
 
+        /*
+        1. Even when the input array contains less than four elements, the constructor
+        still has to exhaust the iteration to check whether any entry is null and cast
+        an exception accordingly. The task description states that distinct points will
+        be input, but in reality it has to be noted that all sorts of invalid inputs
+        can occur. Same rationale for duplicates.
+        */
         for (int i = 0; i < points.length; i++) {
             if (points[i] == null) {
                 throw new IllegalArgumentException("null entry");
@@ -83,7 +90,12 @@ public class BruteCollinearPoints {
         else return 0;
     }
 
-    // the line segments
+    /*
+    the line segments
+    Do not expose internal field through getter/setter, especially the internal field
+    is declared private. Otherwise, this serves a way to modify data through even getter.
+    Use a defensive approach.
+    */
     public LineSegment[] segments() {
         LineSegment[] segmentsCopy = Arrays.copyOf(this.lineSegments, 
                                                     this.lineSegments.length);
