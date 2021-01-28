@@ -25,6 +25,7 @@ public class FastCollinearPoints {
         ArrayList<LineSegment> segs = new ArrayList<>();
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
+            Arrays.sort(pointsCopy);
             // checkNullEntry(p);
         //for (Point p : points) {
             findCollinearSegmentsWithP(p, pointsCopy, segs);
@@ -104,7 +105,7 @@ public class FastCollinearPoints {
                     do with sorting by natural order. Thus, the robust approach
                     is to add all collinear points as per a particular slope.
                     */
-                    Point[] collinearPoints = new Point[j-i+2];
+                    Point[] collinearPoints = new Point[j-i+1];
                     int temp;
                     for (temp = i; temp <= j; temp++) {
                         /*
@@ -116,14 +117,16 @@ public class FastCollinearPoints {
                         */
                         collinearPoints[temp-i] = points[temp];
                     }
-                    collinearPoints[temp-i] = p;
-                    Arrays.sort(collinearPoints);
+                    // collinearPoints[temp-i] = p;
                     // Arrays.sort(collinearPoints);
-                    if (p.compareTo(collinearPoints[0]) == 0 
+                    // Arrays.sort(collinearPoints);
+                    if (p.compareTo(collinearPoints[0]) < 0
+                    // if (p.compareTo(collinearPoints[0]) == 0 
                         // || p.compareTo(collinearPoints[collinearPoints.length-1]) == 0
                         ) {
                             LineSegment newSegment = new LineSegment(
-                                collinearPoints[0], 
+                                p,
+                                // collinearPoints[0], 
                                 collinearPoints[collinearPoints.length-1] 
                                 );
                             list.add(newSegment);
