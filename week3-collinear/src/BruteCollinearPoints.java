@@ -1,10 +1,5 @@
-// import java.text.CollationElementIterator;
-// import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-// import edu.princeton.cs.algs4.Quick;
 import java.util.Arrays;
-// import java.util.Collections;
-// import edu.princeton.cs.algs4.In;
 
 public class BruteCollinearPoints {
     private final LineSegment[] lineSegments;
@@ -16,8 +11,6 @@ public class BruteCollinearPoints {
         }
 
         ArrayList<LineSegment> segs = new ArrayList<>();
-        // Arrays.sort(points);
-        // points[1] = null;
 
         /*
         1. Even when the input array contains less than four elements, the constructor
@@ -64,7 +57,6 @@ public class BruteCollinearPoints {
                             if (slopeIJ == slopeIM) {
                                 Point[] collinearPoints = {
                                     pi, pj, pk, pm
-                                    // points[i], points[j], points[k], points[m]
                                 };
                                 Arrays.sort(collinearPoints);
                                 LineSegment segment = new LineSegment(collinearPoints[0],
@@ -109,51 +101,4 @@ public class BruteCollinearPoints {
                                                     this.lineSegments.length);
         return segmentsCopy;
     }
-
-            /*
-    public static void main(String[] args) {
-        return ;
-        //if (args != null && args.length > 0) {
-            // read the n points from a file
-            In in = new In("duplicatePoints.txt");
-            //In in = new In(args[0]);
-            int n = in.readInt();
-            Point[] points = new Point[n];
-            ArrayList<Point> listOfPoints = new ArrayList<Point>();
-            for (int i = 0; i < n; i++) {
-                int x = in.readInt();
-                int y = in.readInt();
-                points[i] = new Point(x, y);
-                listOfPoints.add(points[i]);
-            }
-            BruteCollinearPoints collinear = new BruteCollinearPoints(points);
-
-            int trials = 1000;
-
-            int segNumber = 0;
-            for (int t = 0; t < trials; t++) {
-                //for (Point p : points) {
-                    //System.out.printf("%s ", p);
-                //}
-                // print and draw the line segments
-                BruteCollinearPoints collinear = new BruteCollinearPoints(points);
-                if (t % 3 == 0 || t % 20 == 0) {
-                    LineSegment[] discard = collinear.segments();
-                }
-                int newSegNumer = collinear.numberOfSegments();
-                if (segNumber != 0 && newSegNumer != segNumber) {
-                    throw new IllegalArgumentException("WWWWWWWWWWWRONG");
-                }
-                if (segNumber == 0) segNumber = newSegNumer;
-                //System.out.printf("\ntest #%d: # of segments - %d\n", t, segNumber);
-
-                // shuffle input
-                Collections.shuffle(listOfPoints);
-                for (int i = 0; i < listOfPoints.size(); i++) {
-                    points[i] = listOfPoints.get(i);
-                }
-            }
-        //}
-    }
-    */
 }

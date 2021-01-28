@@ -9,8 +9,6 @@
  ******************************************************************************/
 
 import java.util.Comparator;
-// import java.util.concurrent.ScheduledThreadPoolExecutor;
-// import java.util.Arrays;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
