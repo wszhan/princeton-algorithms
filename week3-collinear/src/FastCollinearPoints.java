@@ -70,6 +70,15 @@ public class FastCollinearPoints {
             if (j - i >= 2) {
 
                 if (jpSlope == ipSlope) {
+                    /* 
+                    Previously I put 3 collinear points in the array, that is,
+                    points[i], points[j], and the current point p, based on
+                    the assumption that after sort points with respect to their
+                    slope with p, they should also be in natural ascending order,
+                    which is not the case at all. Sorting by slope has nothing to 
+                    do with sorting by natural order. Thus, the robust approach
+                    is to add all collinear points as per a particular slope.
+                    */
                     Point[] collinearPoints = new Point[j-i+2];
                     int temp;
                     for (temp = i; temp <= j; temp++) {
