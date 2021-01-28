@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-// import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.Quick;
 // import javax.sound.sampled.Line;
+
+import edu.princeton.cs.algs4.Quick;
 
 public class FastCollinearPoints {
     private final LineSegment[] lineSegments;
@@ -11,15 +13,19 @@ public class FastCollinearPoints {
             throw new IllegalArgumentException("null argument");
         }
         
+        // points[2] = null;
+        for (int i = 0; i < points.length; i++) {
+            checkNullEntry(points[i]);
+        }
         // backup array
-        Arrays.sort(points);
+        // Point[] pointsCopy = new Point[points.length];
         Point[] pointsCopy = Arrays.copyOf(points, points.length);
 
         // collinear line segments array list
         ArrayList<LineSegment> segs = new ArrayList<>();
-
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
+            // checkNullEntry(p);
         //for (Point p : points) {
             findCollinearSegmentsWithP(p, pointsCopy, segs);
         }
@@ -45,17 +51,33 @@ public class FastCollinearPoints {
         there is no more chance because only 3 points are left now.
         */
         int j;
-        for (int i = 0; i < points.length - 2; i = j + 1) {
-            double ipSlope = p.slopeTo(points[i]);
+        for (int i = 0; i < points.length; i = j + 1) {
+            Point pi = points[i];
+            // checkNullEntry(pi);
+            double ipSlope = p.slopeTo(pi);
+            /*
+            This cannot be checked because the 1st point is definitely the point itself.
+            if (ipSlope == Double.NEGATIVE_INFINITY) {
+                throw new IllegalArgumentException("duplicate points");
+            }
+            */
+
             /*
             if (ipSlope == Double.NEGATIVE_INFINITY) {
                 throw new IllegalArgumentException("duplicate points");
             }
             */
             double jpSlope; 
+            Point pj;
 
             for (j = i + 1; j < points.length; j++) {
-                jpSlope = p.slopeTo(points[j]);
+                pj = points[j];
+                // checkNullEntry(pj);
+                jpSlope = p.slopeTo(pj);
+
+                if (jpSlope == Double.NEGATIVE_INFINITY) {
+                    throw new IllegalArgumentException("duplicate points");
+                }
 
                 /*
                 if (jpSlope == Double.NEGATIVE_INFINITY) {
@@ -63,8 +85,11 @@ public class FastCollinearPoints {
                 }
                 */
 
-                if (jpSlope != ipSlope) break;
+                if (jpSlope != ipSlope) {
+                    break;
+                }
             }
+
             jpSlope = p.slopeTo(points[--j]);
 
             if (j - i >= 2) {
@@ -82,10 +107,18 @@ public class FastCollinearPoints {
                     Point[] collinearPoints = new Point[j-i+2];
                     int temp;
                     for (temp = i; temp <= j; temp++) {
+                        /*
+                        if (temp > i) {
+                            if (collinearPoints[temp].compareTo(collinearPoints[temp-1]) == 0) {
+                                throw new IllegalArgumentException("duplicates");
+                            }
+                        }
+                        */
                         collinearPoints[temp-i] = points[temp];
                     }
                     collinearPoints[temp-i] = p;
                     Arrays.sort(collinearPoints);
+                    // Arrays.sort(collinearPoints);
                     if (p.compareTo(collinearPoints[0]) == 0 
                         // || p.compareTo(collinearPoints[collinearPoints.length-1]) == 0
                         ) {
@@ -119,6 +152,17 @@ public class FastCollinearPoints {
             }
         }
     }
+
+
+    /*
+    Throw IllegalArgumentException when any entry in the input array is null.
+    */
+    private void checkNullEntry(Point p) {
+        if (p == null) {
+            throw new IllegalArgumentException("null entry");
+        }
+    }
+
 
     public int numberOfSegments() {
         if (this.lineSegments != null) return this.lineSegments.length;

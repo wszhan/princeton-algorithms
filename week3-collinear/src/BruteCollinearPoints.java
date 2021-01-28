@@ -27,27 +27,24 @@ public class BruteCollinearPoints {
         can occur. Same rationale for duplicates.
         */
         for (int i = 0; i < points.length; i++) {
-            if (points[i] == null) {
-                throw new IllegalArgumentException("null entry");
-            }
+            Point pi = points[i];
+            checkNullEntry(pi);
 
             for (int j = i + 1; j < points.length; j++) {
-                if (points[j] == null) {
-                    throw new IllegalArgumentException("null entry");
-                }
+                Point pj = points[j];
+                checkNullEntry(pj);
 
-                double slopeIJ = points[i].slopeTo(points[j]);
+                double slopeIJ = pi.slopeTo(pj);
 
                 if (slopeIJ == Double.NEGATIVE_INFINITY) {
                     throw new IllegalArgumentException("duplicate points");
                 }
 
                 for (int k = j + 1; k < points.length; k++) {
-                    if (points[k] == null) {
-                        throw new IllegalArgumentException("null entry");
-                    }
+                    Point pk = points[k];
+                    checkNullEntry(pk);
 
-                    double slopeIK = points[i].slopeTo(points[k]);
+                    double slopeIK = pi.slopeTo(pk);
 
                     if (slopeIK == Double.NEGATIVE_INFINITY) {
                         throw new IllegalArgumentException("duplicate points");
@@ -55,18 +52,20 @@ public class BruteCollinearPoints {
 
                     if (slopeIJ == slopeIK) {
                         for (int m = k + 1; m < points.length; m++) {
-                            if (points[m] == null) {
-                                throw new IllegalArgumentException("null entry");
-                            }
+                            Point pm = points[m];
+                            checkNullEntry(pm);
 
-                            double slopeIM = points[i].slopeTo(points[m]);
+                            double slopeIM = pi.slopeTo(pm);
 
                             if (slopeIM == Double.NEGATIVE_INFINITY) {
                                 throw new IllegalArgumentException("duplicate points");
                             }
 
                             if (slopeIJ == slopeIM) {
-                                Point[] collinearPoints = { points[i], points[j], points[k], points[m]};
+                                Point[] collinearPoints = {
+                                    pi, pj, pk, pm
+                                    // points[i], points[j], points[k], points[m]
+                                };
                                 Arrays.sort(collinearPoints);
                                 LineSegment segment = new LineSegment(collinearPoints[0],
                                         collinearPoints[collinearPoints.length - 1]);
@@ -81,6 +80,15 @@ public class BruteCollinearPoints {
         this.lineSegments = new LineSegment[segs.size()];
         for (int i = 0; i < segs.size(); i++) {
             lineSegments[i] = segs.get(i);
+        }
+    }
+
+    /*
+    Throw IllegalArgumentException when any entry in the input array is null.
+    */
+    private void checkNullEntry(Point p) {
+        if (p == null) {
+            throw new IllegalArgumentException("null entry");
         }
     }
 
