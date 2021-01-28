@@ -82,7 +82,9 @@ public class Point implements Comparable<Point> {
             the slope of (1234, 5678) and (19000, 10000) is 0 before casting, and
             0.0 after casting.
             */
-            return (double) (that.y - this.y) / (that.x - this.x);
+            double yDiff = (double) (that.y - this.y); 
+            double xDiff = (double) (that.x - this.x);
+            return yDiff / xDiff;
         }
     }
 
