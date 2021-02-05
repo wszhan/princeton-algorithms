@@ -8,7 +8,7 @@
 
 */.idea/*
 */.lift/*
-
+*/.vscode/*
 
 *.pdf
 *.xlsx
@@ -20,6 +20,9 @@
 *.txt
 *.class
 *.zip
+
+*.swp*
+*.un~*
 
 CREDITS
 README.*
