@@ -1,9 +1,12 @@
 import java.util.Arrays;
+import java.util.ArrayList;
+import edu.princeton.cs.algs4.StdRandom;
 
 public class Board {
     // private Board previousBoard;
     // private int moves;
     private int[][] tiles;
+    private int zeroIndex;
     // private boolean isGoalBoard;
     // private int hammingDistance;
     // private int manhattanDistance;
@@ -23,12 +26,17 @@ public class Board {
 
         // init instance variable
         this.tiles = new int[tiles.length][tiles[0].length];
+        int dim = tiles.length;
 
         // deep copy
-        for (int i = 0; i < tiles.length; i++) {
-            int[] tilesToCopy = tiles[i];
-            int length = tilesToCopy.length;
-            this.tiles[i] = Arrays.copyOf(tilesToCopy, length);
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                int valueToCopy = tiles[i][j];
+                this.tiles[i][j] = valueToCopy;
+                if (valueToCopy == 0) {
+                    this.zeroIndex = i * dim + j;
+                }
+            }
         }
 
         // Board compareBoard = this.goalBoard();
@@ -36,7 +44,7 @@ public class Board {
         // this.hammingDistance = hamming();
         // this.manhattanDistance = manhattan();
     }
-                                           
+
     // string representation of this board
     public String toString() {
         int dim = this.tiles.length;
@@ -54,13 +62,18 @@ public class Board {
         return s.toString();
     }
 
-    // board dimension n
-    public int dimension() { 
+    /**
+     * @return the dimension of the board
+     */
+    public int dimension() {
         int dim = this.tiles.length;
         return dim;
     }
 
-    // number of tiles out of place
+    /**
+     * @return the hamming value, or the tiles out of place (in terms of the goal
+     *         board) of the current board
+     */
     public int hamming() {
         int dim = dimension();
         int goalElement = 1;
@@ -69,7 +82,8 @@ public class Board {
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
                 if (this.tiles[i][j] != goalElement) {
-                    if (i != dim - 1 || j != dim - 1) hammingValue++;
+                    if (i != dim - 1 || j != dim - 1)
+                        hammingValue++;
                 }
                 goalElement++;
             }
@@ -90,25 +104,9 @@ public class Board {
                 int currentValue = this.tiles[i][j];
                 expectedValue = expectedValue(i, j);
                 if (expectedValue != this.tiles[i][j]) {
-                    // System.out.printf(
-                        // "Testing :\n%s\ncurrent i, j - %d, %d\nthis vs. expected - [%d] vs. [%d]\n", 
-                        // toString(),
-                        // i, j,
-                        // this.tiles[i][j], 
-                        // expectedValue
-                        // );
                     int expectedRow = expectedRow(currentValue);
                     int expectedColumn = expectedColumn(currentValue);
                     int currentManhattan = Math.abs(expectedRow - i) + Math.abs(expectedColumn - j);
-                    // System.out.printf(
-                        // "Testing :\n%s\ncurrent i, j - %d, %d\nthis vs. expected - [%d] vs. [%d]\nexpected row and col - [%d], [%d]\nmanhattan value: %d\n", 
-                        // toString(),
-                        // i, j,
-                        // this.tiles[i][j], 
-                        // expectedValue,
-                        // expectedRow, expectedColumn,
-                        // currentManhattan
-                        // );
                     totalDistance += currentManhattan;
                 }
                 expectedValue++;
@@ -118,28 +116,38 @@ public class Board {
         return totalDistance;
     }
 
-    // row and col and 0 indexed
+    /**
+     * The expected value on a goal board at certain index.
+     * 
+     * row and col and 0 indexed.
+     **/
     private int expectedValue(int row, int col) {
         int dim = dimension();
 
-        if (row == dim - 1 && col == dim - 1) return 0;
+        if (row == dim - 1 && col == dim - 1)
+            return 0;
 
         return row * dim + (col + 1);
     }
 
-    // helper function for manhattan to calculate supposed row position
-    // 0 indexed
+    /**
+     * helper function for manhattan to calculate supposed row position 0 indexed.
+     **/
     private int expectedRow(int value) {
         int dim = dimension();
-        if (value == 0) return dim - 1;
+        if (value == 0)
+            return dim - 1;
         return (value - 1) / dim;
     }
 
-    // helper function for manhattan to calculate supposed col position
-    // 0 indexed
+    /**
+     * helper function for manhattan to calculate supposed column position 0
+     * indexed.
+     **/
     private int expectedColumn(int value) {
         int dim = dimension();
-        if (value == 0) return dim - 1;
+        if (value == 0)
+            return dim - 1;
         return (value - 1) % dim;
     }
 
@@ -164,7 +172,7 @@ public class Board {
     }
 
     // is this board the goal board?
-    public boolean isGoal() { 
+    public boolean isGoal() {
         Board target = goalBoard();
         boolean isGoalBoard = this.equals(target);
         return isGoalBoard;
@@ -172,12 +180,12 @@ public class Board {
         // int goalElement = 1;
 
         // for (int i = 0; i < dim; i++) {
-            // for (int j = 0; j < dim; j++) {
-                // if (this.tiles[i][j] != goalElement) {
-                    // if (i != dim - 1 || j != dim - 1) return false;
-                // }
-                // goalElement++;
-            // }
+        // for (int j = 0; j < dim; j++) {
+        // if (this.tiles[i][j] != goalElement) {
+        // if (i != dim - 1 || j != dim - 1) return false;
+        // }
+        // goalElement++;
+        // }
         // }
 
         // return true;
@@ -185,37 +193,146 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
-        if (y == this) return true;
-        if (y == null) return false;
-        if (y.getClass() != this.getClass()) return false;
+        if (y == this)
+            return true;
+        if (y == null)
+            return false;
+        if (y.getClass() != this.getClass())
+            return false;
         Board yBoard = (Board) y;
-        if (yBoard.dimension() != dimension()) return false;
+        if (yBoard.dimension() != dimension())
+            return false;
 
         String s = toString();
         String ys = yBoard.toString();
-        if (s.equals(ys)) return true;
+        if (s.equals(ys))
+            return true;
 
         return false;
     }
 
-    // all neighboring boards
+    /**
+     * all neighboring boards (next possible state)
+     **/
     public Iterable<Board> neighbors() {
-        return null;
+        ArrayList<Board> neighboringBoards = new ArrayList<>();
+
+        int dim = dimension();
+
+        // edge case: no neighboring board
+        if (dim == 0 || dim == 1)
+            return null;
+
+        // convert zeroIndex to row, col
+        int zeroRowIndex = this.zeroIndex / dim;
+        int zeroColIndex = this.zeroIndex % dim;
+
+        //
+        int[][] neighboringTiles = new int[dim][dim];
+        for (int i = 0; i < dim; i++) {
+            neighboringTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+        }
+
+        if (zeroRowIndex < dim - 1) {
+            // swap
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex, zeroRowIndex + 1, zeroColIndex);
+
+            // construct board
+            Board neighboringBoard = new Board(neighboringTiles);
+            neighboringBoards.add(neighboringBoard);
+
+            // swap back
+            swapElements(neighboringTiles, zeroRowIndex + 1, zeroColIndex, zeroRowIndex, zeroColIndex);
+        }
+
+        if (zeroRowIndex > 0) {
+            // swap
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex, zeroRowIndex - 1, zeroColIndex);
+
+            // construct board
+            Board neighboringBoard = new Board(neighboringTiles);
+            neighboringBoards.add(neighboringBoard);
+
+            // swap back
+            swapElements(neighboringTiles, zeroRowIndex - 1, zeroColIndex, zeroRowIndex, zeroColIndex);
+        }
+
+        if (zeroColIndex < dim - 1) {
+            // swap
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex + 1, zeroRowIndex, zeroColIndex);
+
+            // construct board
+            Board neighboringBoard = new Board(neighboringTiles);
+            neighboringBoards.add(neighboringBoard);
+
+            // swap back
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex, zeroRowIndex, zeroColIndex + 1);
+        }
+
+        if (zeroColIndex > 0) {
+            // swap
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex - 1, zeroRowIndex, zeroColIndex);
+
+            // construct board
+            Board neighboringBoard = new Board(neighboringTiles);
+            neighboringBoards.add(neighboringBoard);
+
+            // swap back
+            swapElements(neighboringTiles, zeroRowIndex, zeroColIndex, zeroRowIndex, zeroColIndex - 1);
+        }
+
+        return neighboringBoards;
     }
 
-    // a board that is obtained by exchanging any pair of tiles
+    /**
+     * Swap helper function for computing neighboring and twinboards.
+     **/
+    private void swapElements(int[][] tiles, int rowA, int colA, int rowB, int colB) {
+        int temp = tiles[rowA][colA];
+        tiles[rowA][colA] = tiles[rowB][colB];
+        tiles[rowB][colB] = temp;
+    }
+
+    /**
+     * Randomly swap two elements that are non-zero to get a twin board.
+     **/
     public Board twin() {
-        return null;
+        int dim = dimension();
+
+        // edge case: no twin board
+        if (dim == 0 || dim == 1)
+            return null;
+
+        int elementOneIndex = 0, elementTwoIndex = 0;
+
+        int[][] twinBoardTiles = new int[dim][dim];
+        for (int i = 0; i < dim; i++) {
+            twinBoardTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+        }
+
+        // select two elements uniformly and make sure they are i. non-zero ii. not
+        // equal
+        while (elementOneIndex == zeroIndex || elementTwoIndex == zeroIndex || elementOneIndex == elementTwoIndex) {
+            elementOneIndex = StdRandom.uniform(0, dim * dim);
+            elementTwoIndex = StdRandom.uniform(0, dim * dim);
+        }
+
+        swapElements(twinBoardTiles, elementOneIndex / dim, elementOneIndex % dim, elementTwoIndex / dim,
+                elementTwoIndex % dim);
+
+        Board twinBoard = new Board(twinBoardTiles);
+
+        return twinBoard;
     }
 
     // unit testing (not graded)
     public static void main(String[] args) {
         int[][] t0 = null;
-        int[][] t00 = {{}};
-        int[][] t1 = {{0}};
-        int[][] t2 = {{1, 2}, {3, 0}};
-        int[][] t3 = {{1, 2}, {3, 0}};
-        int[][] t4 = {{1, 3}, {2, 0}};
+        int[][] t00 = { {} };
+        int[][] t1 = { { 0 } };
+        int[][] t2 = { { 1, 2 }, { 3, 0 } };
+        int[][] t3 = { { 1, 2 }, { 3, 0 } };
+        int[][] t4 = { { 1, 3 }, { 2, 0 } };
 
         Board aBoard;
         Board bBoard;
@@ -224,57 +341,122 @@ public class Board {
         String cmpString;
 
         // null test
-        try {
-            Board b0 = new Board(t0);
-        } catch (Exception e) {
-            if (e instanceof IllegalArgumentException) { }
+        {
+            try {
+                Board b0 = new Board(t0);
+            } catch (Exception e) {
+                if (e instanceof IllegalArgumentException) {
+                }
+            }
         }
 
         // empty array test
-        try {
-            Board b00 = new Board(t00);
-        } catch (Exception e) {
-            if (e instanceof IllegalArgumentException) { }
+        {
+            try {
+                Board b00 = new Board(t00);
+            } catch (Exception e) {
+                if (e instanceof IllegalArgumentException) {
+                }
+            }
         }
 
-        aBoard = new Board(t1);
-        aBoardString = aBoard.toString();
-        cmpString = "1\n 0 \n";
-        if (!cmpString.equals(aBoardString)) System.out.println(aBoardString);
-
         // test equality
-        aBoard = new Board(t2);
-        aBoardString = aBoard.toString();
-        cmpString = "2\n 1  2 \n 3  0 \n";
-        if (!cmpString.equals(aBoardString)) System.out.println(aBoardString);
+        {
+            aBoard = new Board(t1);
+            aBoardString = aBoard.toString();
+            cmpString = "1\n 0 \n";
+            assert cmpString.equals(aBoardString);
+            if (!cmpString.equals(aBoardString))
+                System.out.println(aBoardString);
 
-        bBoard = new Board(t3);
-        bBoardString = bBoard.toString();
-        if (!cmpString.equals(bBoardString)) System.out.println(bBoardString);
+            aBoard = new Board(t2);
+            aBoardString = aBoard.toString();
+            cmpString = "2\n 1  2 \n 3  0 \n";
+            assert cmpString.equals(aBoardString);
+            if (!cmpString.equals(aBoardString))
+                System.out.println(aBoardString);
 
-        assert aBoard.equals(bBoard);
+            bBoard = new Board(t3);
+            bBoardString = bBoard.toString();
+            assert cmpString.equals(bBoardString);
+            if (!cmpString.equals(bBoardString))
+                System.out.println(bBoardString);
+
+            assert aBoard.equals(bBoard);
+        }
 
         // test inequality
-        bBoard = new Board(t4);
-        bBoardString = bBoard.toString();
-        cmpString = "2\n 1  3 \n 2  0 \n";
-        if (!cmpString.equals(bBoardString)) System.out.println(bBoardString);
-        assert(!aBoard.equals(bBoard));
+        {
+            bBoard = new Board(t4);
+            bBoardString = bBoard.toString();
+            cmpString = "2\n 1  3 \n 2  0 \n";
+            if (!cmpString.equals(bBoardString))
+                System.out.println(bBoardString);
+            assert (!aBoard.equals(bBoard));
+        }
 
         // test goal board
-        assert aBoard.isGoal();
-        assert !bBoard.isGoal();
+        {
+            assert aBoard.isGoal();
+            assert !bBoard.isGoal();
+        }
 
         // test hamming value
-        assert aBoard.hamming() == 0;
-        assert bBoard.hamming() == 2;
+        {
+            assert aBoard.hamming() == 0;
+            assert bBoard.hamming() == 2;
+        }
 
         // test manhattan
-        assert aBoard.manhattan() == 0;
+        {
+            assert aBoard.manhattan() == 0;
+            assert bBoard.manhattan() == 4;
+        }
 
-        // System.out.println("" + bBoard.manhattan());
-        int bManhattan = bBoard.manhattan();
-        assert bBoard.manhattan() == 4;
+        // test neighboring boards
+        {
+            int[][] cmp1 = { { 1, 0 }, { 3, 2 } };
+            int[][] cmp2 = { { 1, 2 }, { 0, 3 } };
+            ArrayList<Board> cmpBoards = new ArrayList<>();
+            cmpBoards.add(new Board(cmp1));
+            cmpBoards.add(new Board(cmp2));
+            int count = 0;
+            for (Board a : aBoard.neighbors()) {
+                for (Board b : cmpBoards) {
+                    if (a.equals(b))
+                        count++;
+                }
+            }
+            assert count == 2;
+            int[][] t5 = { { 1, 2, 3 }, { 4, 0, 5 }, { 6, 7, 8 } };
+            aBoard = new Board(t5);
+            int[][] t5Cmp1 = { { 1, 0, 3 }, { 4, 2, 5 }, { 6, 7, 8 } };
+            int[][] t5Cmp2 = { { 1, 2, 3 }, { 0, 4, 5 }, { 6, 7, 8 } };
+            int[][] t5Cmp3 = { { 1, 2, 3 }, { 4, 7, 5 }, { 6, 0, 8 } };
+            int[][] t5Cmp4 = { { 1, 2, 3 }, { 4, 5, 0 }, { 6, 7, 8 } };
+            ArrayList<Board> t5CmpBoards = new ArrayList<>();
+            t5CmpBoards.add(new Board(t5Cmp1));
+            t5CmpBoards.add(new Board(t5Cmp2));
+            t5CmpBoards.add(new Board(t5Cmp3));
+            t5CmpBoards.add(new Board(t5Cmp4));
+            int t5CmpCount = 0;
+            for (Board a : aBoard.neighbors()) {
+                for (Board b : t5CmpBoards) {
+                    if (a.equals(b))
+                        t5CmpCount++;
+                }
+            }
+            assert t5CmpCount == 4;
+        }
 
+        // test twin
+        {
+            // recycle t5 and aBoard
+            int testIteration = 50;
+            for (int t = 0; t < testIteration; t++) {
+                Board twinBoard = aBoard.twin();
+                assert !aBoard.equals(twinBoard);
+            }
+        }
     }
 }
