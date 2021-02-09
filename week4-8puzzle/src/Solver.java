@@ -89,7 +89,8 @@ public class Solver {
         // Could be redundant?
         while (solutionNode != null 
                 && solutionNode.currBoard.isGoal() 
-                && solutionNode.moves == this.solutionMoves) {
+                && solutionNode.moves == this.solutionMoves
+                && !gameTreeMain.isEmpty()) {
             solutionNodes.add(solutionNode);
             goalBoards.add(solutionNode.currBoard);
             solutionNode = gameTreeMain.delMin();
