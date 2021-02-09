@@ -139,9 +139,27 @@ public class Solver {
             this.manhattan = this.currBoard.manhattan();
         }
 
+        /**
+         * Prioritize moves while comparing search nodes.
+         */
         public int compareTo(SearchNode that) {
-            if (this.moves > that.moves) return 1;
-            else if (this.moves < that.moves) return -1;
+            if (this.moves > that.moves) { 
+                return 1;
+            } else if (this.moves < that.moves) {
+                return -1;
+            } else if (this.hamming == that.hamming) {
+                // break ties
+                if (this.manhattan > that.manhattan) return 1;
+                else if (this.manhattan < that.manhattan) return -1;
+            } else if (this.manhattan == that.manhattan) {
+                // break ties
+                if (this.hamming > that.hamming) return 1;
+                else if (this.hamming < that.hamming) return -1;
+            } else {
+                if (this.manhattan > that.manhattan) return 1;
+                else if (this.manhattan < that.manhattan) return -1;
+            }
+
             return 0;
         }
     }
