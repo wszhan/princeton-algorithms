@@ -9,6 +9,8 @@ public class Solver {
     private MinPQ<SearchNode> gameTreeTwin = new MinPQ<>();;
     private ArrayList<Board> goalBoards;
     private int solutionMoves = -1;
+
+    // debugging
     private ArrayList<SearchNode> solutionNodes = new ArrayList<>();
 
     // find a solution to the initial board (using the A* algorithm)
@@ -23,18 +25,46 @@ public class Solver {
         // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
         gameTreeMain.insert(rootNode);
-        SearchNode dequedNode = gameTreeMain.delMin();
+        // SearchNode dequedNodeMain = gameTreeMain.delMin();
 
         // twin game tree to find unsolvable board
         // no need to keep track
         Board twinBoard = initial.twin();
         SearchNode twinRootNode = new SearchNode(null, twinBoard, 0);
         gameTreeTwin.insert(twinRootNode);
+        // SearchNode dequedNodeTwin = gameTreeTwin.delMin();
 
         // repeat until a goal board is found
         // alternating between main game tree and twin game tree
-        while (!dequedNode.currBoard.isGoal()) {
+        boolean searchMain = true;
+        boolean twinGoalFound = false;
+        SearchNode solutionNode = null;
+
+        while (true) {
+            MinPQ<SearchNode> gameTree;
+
+            if (searchMain) { 
+                // currentBoard = dequedNodeMain.currBoard;
+                // dequedNode = dequedNodeMain;
+                gameTree = gameTreeMain;
+            } else {
+                // currentBoard = dequedNodeTwin.currBoard;
+                // dequedNode = dequedNodeTwin;
+                gameTree = gameTreeTwin;
+            }
+
+            SearchNode dequedNode = gameTree.delMin();
             Board currentBoard = dequedNode.currBoard;
+
+            // break if a goal board is found
+            // if main tree is currently being search, assign the node to the solution
+            // otherwise just breka and leave the solution null
+            if (currentBoard.isGoal()) {
+                if (searchMain) {
+                    solutionNode = dequedNode;
+                }
+                break;
+            }
 
             // if the board in the current search node isn't a goal board
             // put all its neighbors() in the MinPQ
@@ -44,23 +74,25 @@ public class Solver {
             for (Board neighbor : currentBoard.neighbors()) {
                 if (!neighbor.equals(currentBoard)) {
                     SearchNode node = new SearchNode(dequedNode, neighbor, dequedNode.moves+1);
-                    gameTreeMain.insert(node);
+                    gameTree.insert(node);
                 }
             }
 
-            dequedNode = gameTreeMain.delMin();
+            // alternating
+            searchMain = !searchMain;
         }
 
-        solutionMoves = dequedNode.moves;
+        if (solutionNode != null) this.solutionMoves = solutionNode.moves;
 
         // dequeue nodes until it is not a goal board
         // to make sure all goal boards are found
-        while (dequedNode != null 
-                && dequedNode.currBoard.isGoal() 
-                && dequedNode.moves == this.solutionMoves) {
-            solutionNodes.add(dequedNode);
-            goalBoards.add(dequedNode.currBoard);
-            dequedNode = gameTreeMain.delMin();
+        // Could be redundant?
+        while (solutionNode != null 
+                && solutionNode.currBoard.isGoal() 
+                && solutionNode.moves == this.solutionMoves) {
+            solutionNodes.add(solutionNode);
+            goalBoards.add(solutionNode.currBoard);
+            solutionNode = gameTreeMain.delMin();
         }
     }
 
@@ -135,8 +167,8 @@ public class Solver {
 
         In in; 
         if (specificTest) {
-            in = new In("puzzle04.txt");
-            // in = new In("puzzle2x2-unsolvable1.txt");
+            // in = new In("puzzle05.txt");
+            in = new In("puzzle2x2-unsolvable1.txt");
         } else {
             in = new In(args[0]);
         }
