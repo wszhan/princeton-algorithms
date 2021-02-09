@@ -11,6 +11,7 @@ public class Board {
     private int[][] goalBoardTiles;
     private int hammingDistance = -1;
     private int manhattanDistance = -1;
+    private String boardStringRepr = "";
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -51,19 +52,23 @@ public class Board {
 
     // string representation of this board
     public String toString() {
-        int dim = this.tiles.length;
+        if (this.boardStringRepr.length() == 0) {
+            int dim = this.tiles.length;
 
-        StringBuilder s = new StringBuilder();
-        s.append(dim + "\n");
+            StringBuilder s = new StringBuilder();
+            s.append(dim + "\n");
 
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                s.append(String.format("%2d ", this.tiles[i][j]));
+            for (int i = 0; i < dim; i++) {
+                for (int j = 0; j < dim; j++) {
+                    s.append(String.format("%2d ", this.tiles[i][j]));
+                }
+                s.append("\n");
             }
-            s.append("\n");
+
+            this.boardStringRepr = s.toString();
         }
 
-        return s.toString();
+        return this.boardStringRepr;
     }
 
     /**

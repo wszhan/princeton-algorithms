@@ -98,24 +98,24 @@ public class Solver {
         }
     }
 
-    public void printTrace() {
-        int count = 0;
-        for (SearchNode node : solutionNodes) {
-            count++;
-            SearchNode currNode = node;
-            Board currentBoard = currNode.currBoard;
-            System.out.printf("Trace of Solution #%d:\n", count);
-            do {
-                System.out.printf("Moves already made: %d\nManhattan: %d\nHamming: %d\n",
-                    currNode.moves,
-                    currNode.manhattan,
-                    currNode.hamming
-                    );
-                System.out.println(currNode.currBoard);
-                currNode = currNode.prevNode;
-            } while (currNode != null);
-        }
-    }
+    // public void printTrace() {
+        // int count = 0;
+        // for (SearchNode node : solutionNodes) {
+            // count++;
+            // SearchNode currNode = node;
+            // Board currentBoard = currNode.currBoard;
+            // System.out.printf("Trace of Solution #%d:\n", count);
+            // do {
+                // System.out.printf("Moves already made: %d\nManhattan: %d\nHamming: %d\n",
+                    // currNode.moves,
+                    // currNode.manhattan,
+                    // currNode.hamming
+                    // );
+                // System.out.println(currNode.currBoard);
+                // currNode = currNode.prevNode;
+            // } while (currNode != null);
+        // }
+    // }
 
     private class SearchNode implements Comparable<SearchNode> {
         SearchNode prevNode;
@@ -196,9 +196,9 @@ public class Solver {
         }
 
         // print out trace
-        boolean printTrace = true;
-        if (printTrace) {
-            solver.printTrace();
-        }
+        // boolean printTrace = true;
+        // if (printTrace) {
+            // solver.printTrace();
+        // }
     }
 }
