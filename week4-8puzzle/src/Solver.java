@@ -5,25 +5,34 @@ import java.util.ArrayList;
 
 public class Solver {
 
-    private MinPQ<SearchNode> minPriorityQueue = new MinPQ<>();;
+    private MinPQ<SearchNode> gameTreeMain = new MinPQ<>();;
+    private MinPQ<SearchNode> gameTreeTwin = new MinPQ<>();;
     private ArrayList<Board> goalBoards;
     private int solutionMoves = -1;
+    private ArrayList<SearchNode> solutionNodes = new ArrayList<>();
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
 
-        if (initial == null) {
+        if (initial == null || initial.dimension() == 0) {
             throw new IllegalArgumentException("Solver - invalid input");
         }
 
         goalBoards = new ArrayList<>();
 
-        // initialization of the priority queue
+        // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
-        minPriorityQueue.insert(rootNode);
-        SearchNode dequedNode = minPriorityQueue.delMin();
+        gameTreeMain.insert(rootNode);
+        SearchNode dequedNode = gameTreeMain.delMin();
+
+        // twin game tree to find unsolvable board
+        // no need to keep track
+        Board twinBoard = initial.twin();
+        SearchNode twinRootNode = new SearchNode(null, twinBoard, 0);
+        gameTreeTwin.insert(twinRootNode);
 
         // repeat until a goal board is found
+        // alternating between main game tree and twin game tree
         while (!dequedNode.currBoard.isGoal()) {
             Board currentBoard = dequedNode.currBoard;
 
@@ -34,14 +43,13 @@ public class Solver {
             // the previous node 
             for (Board neighbor : currentBoard.neighbors()) {
                 if (!neighbor.equals(currentBoard)) {
-                    SearchNode node = new SearchNode(dequedNode, neighbor, dequedNode.moves);
-                    minPriorityQueue.insert(node);
+                    SearchNode node = new SearchNode(dequedNode, neighbor, dequedNode.moves+1);
+                    gameTreeMain.insert(node);
                 }
             }
 
-            dequedNode = minPriorityQueue.delMin();
+            dequedNode = gameTreeMain.delMin();
         }
-
 
         solutionMoves = dequedNode.moves;
 
@@ -50,8 +58,28 @@ public class Solver {
         while (dequedNode != null 
                 && dequedNode.currBoard.isGoal() 
                 && dequedNode.moves == this.solutionMoves) {
+            solutionNodes.add(dequedNode);
             goalBoards.add(dequedNode.currBoard);
-            dequedNode = minPriorityQueue.delMin();
+            dequedNode = gameTreeMain.delMin();
+        }
+    }
+
+    public void printTrace() {
+        int count = 0;
+        for (SearchNode node : solutionNodes) {
+            count++;
+            SearchNode currNode = node;
+            Board currentBoard = currNode.currBoard;
+            System.out.printf("Trace of Solution #%d:\n", count);
+            do {
+                System.out.printf("Moves already made: %d\nManhattan: %d\nHamming: %d\n",
+                    currNode.moves,
+                    currNode.manhattan,
+                    currNode.hamming
+                    );
+                System.out.println(currNode.currBoard);
+                currNode = currNode.prevNode;
+            } while (currNode != null);
         }
     }
 
@@ -72,7 +100,7 @@ public class Solver {
 
             this.prevNode = prevNode;
             this.currBoard= currBoard;
-            this.moves = movesAlreadyMade + 1;
+            this.moves = movesAlreadyMade;
             this.hamming = this.currBoard.hamming();
             this.manhattan = this.currBoard.manhattan();
         }
@@ -103,8 +131,17 @@ public class Solver {
 
     // test client (see below)
     public static void main(String[] args) {
+        boolean specificTest = true;
+
+        In in; 
+        if (specificTest) {
+            in = new In("puzzle04.txt");
+            // in = new In("puzzle2x2-unsolvable1.txt");
+        } else {
+            in = new In(args[0]);
+        }
+
         // create initial board from file
-        In in = new In(args[0]);
         int n = in.readInt();
         int[][] tiles = new int[n][n];
         for (int i = 0; i < n; i++)
@@ -122,6 +159,12 @@ public class Solver {
             StdOut.println("Minimum number of moves = " + solver.moves());
             for (Board board : solver.solution())
                 StdOut.println(board);
+        }
+
+        // print out trace
+        boolean printTrace = true;
+        if (printTrace) {
+            solver.printTrace();
         }
     }
 }
