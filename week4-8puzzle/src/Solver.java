@@ -53,27 +53,28 @@ public class Solver {
                 gameTree = gameTreeTwin;
             }
 
-            SearchNode dequedNode = gameTree.delMin();
-            Board currentBoard = dequedNode.currBoard;
+            SearchNode dequeuedNode = gameTree.delMin();
+            Board currentBoard = dequeuedNode.currBoard;
+            SearchNode prevNode = dequeuedNode.prevNode;
 
             // break if a goal board is found
             // if main tree is currently being search, assign the node to the solution
             // otherwise just breka and leave the solution null
             if (currentBoard.isGoal()) {
                 if (searchMain) {
-                    solutionNode = dequedNode;
+                    solutionNode = dequeuedNode;
                 }
                 break;
             }
 
             // if the board in the current search node isn't a goal board
             // put all its neighbors() in the MinPQ
-            // after contruct each of them into a search node
-            // but don't do so if the baord is identical to that board in 
+            // after construct each of them into a search node
+            // but don't do so if the neighbor baord is identical to that board in 
             // the previous node 
             for (Board neighbor : currentBoard.neighbors()) {
-                if (!neighbor.equals(currentBoard)) {
-                    SearchNode node = new SearchNode(dequedNode, neighbor, dequedNode.moves+1);
+                if (prevNode == null || !neighbor.equals(prevNode.currBoard)) {
+                    SearchNode node = new SearchNode(dequeuedNode, neighbor, dequeuedNode.moves+1);
                     gameTree.insert(node);
                 }
             }

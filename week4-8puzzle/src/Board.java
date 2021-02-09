@@ -3,14 +3,14 @@ import java.util.ArrayList;
 import edu.princeton.cs.algs4.StdRandom;
 
 public class Board {
-    // private Board previousBoard;
-    // private int moves;
     private int[][] tiles;
     private int zeroIndex;
     // private boolean isGoalBoard;
-    // private int hammingDistance;
-    // private int manhattanDistance;
-    // private String tilesString;
+    
+    // cache fixed values to avoid redundant and repetitive computation
+    private int[][] goalBoardTiles;
+    private int hammingDistance = -1;
+    private int manhattanDistance = -1;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -24,15 +24,19 @@ public class Board {
             throw new IllegalArgumentException("array in tiles is null or empty");
         }
 
-        // init instance variable
-        this.tiles = new int[tiles.length][tiles[0].length];
-        int dim = tiles.length;
+        // for goal board constructor
 
+        // init instance variable
+        this.tiles = new int[tiles.length][tiles.length];
+        int dim = tiles.length;
+        this.goalBoardTiles = new int[tiles.length][tiles.length];
         // deep copy
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
                 int valueToCopy = tiles[i][j];
                 this.tiles[i][j] = valueToCopy;
+                goalBoardTiles[i][j] = expectedValue(i, j); 
+                // goalBoardTiles[i][j] = i * dim + (j + 1);
                 if (valueToCopy == 0) {
                     this.zeroIndex = i * dim + j;
                 }
@@ -41,8 +45,8 @@ public class Board {
 
         // Board compareBoard = this.goalBoard();
         // this.isGoalBoard= equals(compareBoard);
-        // this.hammingDistance = hamming();
-        // this.manhattanDistance = manhattan();
+        this.hammingDistance = hamming();
+        this.manhattanDistance = manhattan();
     }
 
     // string representation of this board
@@ -75,6 +79,11 @@ public class Board {
      *         board) of the current board
      */
     public int hamming() {
+        if (this.hammingDistance != -1) {
+            int hamming = this.hammingDistance;
+            return hamming;
+        }
+
         int dim = dimension();
         int goalElement = 1;
         int hammingValue = 0;
@@ -94,6 +103,11 @@ public class Board {
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
+        if (this.manhattanDistance!= -1) {
+            int manhattan = this.manhattanDistance;
+            return manhattan;
+        }
+
         // init
         int totalDistance = 0;
         int expectedValue;
@@ -152,23 +166,25 @@ public class Board {
     }
 
     private Board goalBoard() {
-        int dim = dimension();
-        int[][] goalBoardTiles = new int[dim][dim];
-        int goalElement = 1;
-
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                if (i == dim - 1 && j == dim - 1) {
-                    goalBoardTiles[i][j] = 0;
-                } else {
-                    goalBoardTiles[i][j] = goalElement;
-                    goalElement++;
-                }
-            }
-        }
-
-        Board goalBoard = new Board(goalBoardTiles);
+        Board goalBoard = new Board(this.goalBoardTiles);
         return goalBoard;
+        // int dim = dimension();
+        // int[][] goalBoardTiles = new int[dim][dim];
+        // int goalElement = 1;
+
+        // for (int i = 0; i < dim; i++) {
+            // for (int j = 0; j < dim; j++) {
+                // if (i == dim - 1 && j == dim - 1) {
+                    // goalBoardTiles[i][j] = 0;
+                // } else {
+                    // goalBoardTiles[i][j] = goalElement;
+                    // goalElement++;
+                // }
+            // }
+        // }
+
+        // Board goalBoard = new Board(goalBoardTiles);
+        // return goalBoard;
     }
 
     // is this board the goal board?
@@ -176,6 +192,7 @@ public class Board {
         Board target = goalBoard();
         boolean isGoalBoard = this.equals(target);
         return isGoalBoard;
+
         // int dim = dimension();
         // int goalElement = 1;
 
@@ -191,7 +208,10 @@ public class Board {
         // return true;
     }
 
-    // does this board equal y?
+    /** 
+     * does this board equal y?
+     * A hack is used.
+     */
     public boolean equals(Object y) {
         if (y == this)
             return true;
