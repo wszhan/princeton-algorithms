@@ -4,12 +4,15 @@ import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.In;
 
 public class Board {
-    private int[][] tiles;
+    private char[] tiles;
+    // private int[][] tiles;
     private int zeroIndex;
+    private int dimension;
     // private boolean isGoalBoard;
     
     // cache fixed values to avoid redundant and repetitive computation
-    private int[][] goalBoardTiles;
+    private char[] goalBoardTiles;
+    // private int[][] goalBoardTiles;
     private int hammingDistance = -1;
     private int manhattanDistance = -1;
     private String boardStringRepr = "";
@@ -30,15 +33,20 @@ public class Board {
         // for goal board constructor
 
         // init instance variable
-        this.tiles = new int[tiles.length][tiles.length];
+        this.tiles = new char[tiles.length * tiles.length];
+        // this.tiles = new int[tiles.length][tiles.length];
         int dim = tiles.length;
-        this.goalBoardTiles = new int[tiles.length][tiles.length];
+        this.dimension = dim;
+        this.goalBoardTiles = new char[tiles.length * tiles.length];
+
         // deep copy
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
                 int valueToCopy = tiles[i][j];
-                this.tiles[i][j] = valueToCopy;
-                goalBoardTiles[i][j] = expectedValue(i, j); 
+                int currentIndex = index(i, j);
+                this.tiles[index(i, j)] = (char) valueToCopy;
+                // this.tiles[i][j] = valueToCopy;
+                goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
                 // goalBoardTiles[i][j] = i * dim + (j + 1);
                 if (valueToCopy == 0) {
                     this.zeroIndex = i * dim + j;
@@ -55,14 +63,15 @@ public class Board {
     // string representation of this board
     public String toString() {
         if (this.boardStringRepr.length() == 0) {
-            int dim = this.tiles.length;
+            int dim = dimension();
 
             StringBuilder s = new StringBuilder();
             s.append(dim + "\n");
 
             for (int i = 0; i < dim; i++) {
                 for (int j = 0; j < dim; j++) {
-                    s.append(String.format("%2d ", this.tiles[i][j]));
+                    int currentIndex = index(i, j);
+                    s.append(String.format("%2d ", (int) this.tiles[index(i, j)]));
                 }
                 s.append("\n");
             }
@@ -77,8 +86,32 @@ public class Board {
      * @return the dimension of the board
      */
     public int dimension() {
-        int dim = this.tiles.length;
+        int dim = this.dimension;
         return dim;
+    }
+
+    /**
+     * 1-D index to row of 2-D index tuple (row, column). 
+     */
+    private int row(int index) {
+        int dim = dimension();
+        return (index - 1) / dim;
+    }
+
+    /**
+     * 1-D index to column of 2-D index tuple (row, column). 
+     */
+    private int column(int index) {
+        int dim = dimension();
+        return index % dim;
+    }
+
+    /**
+     * 2-D index tuple (row, column) to 1-D index.
+     */
+    private int index(int row, int col) {
+        int dim = dimension();
+        return row * dim + col;
     }
 
     /**
@@ -97,7 +130,8 @@ public class Board {
 
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
-                if (this.tiles[i][j] != goalElement) {
+                int currentValue = (int) this.tiles[index(i, j)];
+                if (currentValue != goalElement) {
                     if (i != dim - 1 || j != dim - 1)
                         hammingValue++;
                 }
@@ -122,12 +156,12 @@ public class Board {
 
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
-                int currentValue = this.tiles[i][j];
+                int currentValue = (int) this.tiles[index(i, j)];
                 expectedValue = expectedValue(i, j);
                 
                 // do not compute if the current value is 0 because it is
                 // not a tile, at least in this specific context
-                if (currentValue != 0 && expectedValue != this.tiles[i][j]) {
+                if (currentValue != 0 && expectedValue != currentValue) {
                     int expectedRow = expectedRow(currentValue);
                     int expectedColumn = expectedColumn(currentValue);
                     int currentManhattan = Math.abs(expectedRow - i) + Math.abs(expectedColumn - j);
@@ -175,7 +209,16 @@ public class Board {
     }
 
     private Board goalBoard() {
-        Board goalBoard = new Board(this.goalBoardTiles);
+        int dim = dimension();
+        int[][] targetTiles = new int[dim][dim];
+
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                targetTiles[i][j] = (int) goalBoardTiles[index(i, j)];
+            }
+        }
+
+        Board goalBoard = new Board(targetTiles);
         return goalBoard;
         // int dim = dimension();
         // int[][] goalBoardTiles = new int[dim][dim];
@@ -259,8 +302,13 @@ public class Board {
         //
         int[][] neighboringTiles = new int[dim][dim];
         for (int i = 0; i < dim; i++) {
-            neighboringTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+            for (int j = 0; j < dim; j++) {
+                neighboringTiles[i][j] = (int) this.tiles[index(i, j)];
+            }
         }
+        // for (int i = 0; i < dim; i++) {
+            // neighboringTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+        // }
 
         if (zeroRowIndex < dim - 1) {
             // swap
@@ -339,8 +387,13 @@ public class Board {
         int elementOneIndex = 0, elementTwoIndex = 0;
 
         int[][] twinBoardTiles = new int[dim][dim];
+        // for (int i = 0; i < dim; i++) {
+            // twinBoardTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+        // }
         for (int i = 0; i < dim; i++) {
-            twinBoardTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+            for (int j = 0; j < dim; j++) {
+                twinBoardTiles[i][j] = (int) this.tiles[index(i, j)];
+            }
         }
 
         // select two elements uniformly and make sure they are i. non-zero ii. not
@@ -366,7 +419,7 @@ public class Board {
 
         In in; 
         if (specificTest) {
-            fileName = "puzzle04.txt";
+            fileName = "puzzle01.txt";
             in = new In(fileName);
             // in = new In("puzzle2x2-unsolvable1.txt");
         } else {
@@ -389,6 +442,11 @@ public class Board {
 
         // test twin
         System.out.printf(
-            "Twin Board: %s", initial.twin());
+            "Twin Board:\n%s", initial.twin());
+        
+        // test neighbors
+        for (Board b : initial.neighbors()) {
+            System.out.println(b);
+        }
     }
 }
