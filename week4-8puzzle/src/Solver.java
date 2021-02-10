@@ -5,8 +5,6 @@ import java.util.ArrayList;
 
 public class Solver {
 
-    private MinPQ<SearchNode> gameTreeMain = new MinPQ<>();;
-    private MinPQ<SearchNode> gameTreeTwin = new MinPQ<>();;
     private ArrayList<Board> goalBoards;
     private int solutionMoves = -1;
 
@@ -15,6 +13,11 @@ public class Solver {
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+
+        // PQs are only used in the constructor
+        // no need to create them as instance variables
+        MinPQ<SearchNode> gameTreeMain = new MinPQ<>();
+        MinPQ<SearchNode> gameTreeTwin = new MinPQ<>();
 
         if (initial == null || initial.dimension() == 0) {
             throw new IllegalArgumentException("Solver - invalid input");
@@ -133,7 +136,7 @@ public class Solver {
             }
 
             this.prevNode = prevNode;
-            this.currBoard= currBoard;
+            this.currBoard = currBoard;
             this.moves = movesAlreadyMade;
             this.hamming = this.currBoard.hamming();
             this.manhattan = this.currBoard.manhattan();
@@ -212,11 +215,5 @@ public class Solver {
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
-
-        // print out trace
-        // boolean printTrace = true;
-        // if (printTrace) {
-            // solver.printTrace();
-        // }
     }
 }

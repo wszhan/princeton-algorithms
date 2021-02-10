@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.ArrayList;
 import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.In;
 
 public class Board {
     private int[][] tiles;
@@ -108,7 +109,7 @@ public class Board {
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
-        if (this.manhattanDistance!= -1) {
+        if (this.manhattanDistance != -1) {
             int manhattan = this.manhattanDistance;
             return manhattan;
         }
@@ -122,13 +123,15 @@ public class Board {
             for (int j = 0; j < dim; j++) {
                 int currentValue = this.tiles[i][j];
                 expectedValue = expectedValue(i, j);
-                if (expectedValue != this.tiles[i][j]) {
+                
+                // do not compute if the current value is 0 because it is
+                // not a tile, at least in this specific context
+                if (currentValue != 0 && expectedValue != this.tiles[i][j]) {
                     int expectedRow = expectedRow(currentValue);
                     int expectedColumn = expectedColumn(currentValue);
                     int currentManhattan = Math.abs(expectedRow - i) + Math.abs(expectedColumn - j);
                     totalDistance += currentManhattan;
                 }
-                expectedValue++;
             }
         }
 
@@ -352,136 +355,30 @@ public class Board {
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        int[][] t0 = null;
-        int[][] t00 = { {} };
-        int[][] t1 = { { 0 } };
-        int[][] t2 = { { 1, 2 }, { 3, 0 } };
-        int[][] t3 = { { 1, 2 }, { 3, 0 } };
-        int[][] t4 = { { 1, 3 }, { 2, 0 } };
+        boolean specificTest = true;
+        String fileName;
 
-        Board aBoard;
-        Board bBoard;
-        String aBoardString;
-        String bBoardString;
-        String cmpString;
-
-        // null test
-        {
-            try {
-                Board b0 = new Board(t0);
-            } catch (Exception e) {
-                if (e instanceof IllegalArgumentException) {
-                }
-            }
+        In in; 
+        if (specificTest) {
+            fileName = "puzzle04.txt";
+            in = new In(fileName);
+            // in = new In("puzzle2x2-unsolvable1.txt");
+        } else {
+            fileName = args[0];
+            in = new In(fileName);
         }
 
-        // empty array test
-        {
-            try {
-                Board b00 = new Board(t00);
-            } catch (Exception e) {
-                if (e instanceof IllegalArgumentException) {
-                }
-            }
-        }
-
-        // test equality
-        {
-            aBoard = new Board(t1);
-            aBoardString = aBoard.toString();
-            cmpString = "1\n 0 \n";
-            assert cmpString.equals(aBoardString);
-            if (!cmpString.equals(aBoardString))
-                System.out.println(aBoardString);
-
-            aBoard = new Board(t2);
-            aBoardString = aBoard.toString();
-            cmpString = "2\n 1  2 \n 3  0 \n";
-            assert cmpString.equals(aBoardString);
-            if (!cmpString.equals(aBoardString))
-                System.out.println(aBoardString);
-
-            bBoard = new Board(t3);
-            bBoardString = bBoard.toString();
-            assert cmpString.equals(bBoardString);
-            if (!cmpString.equals(bBoardString))
-                System.out.println(bBoardString);
-
-            assert aBoard.equals(bBoard);
-        }
-
-        // test inequality
-        {
-            bBoard = new Board(t4);
-            bBoardString = bBoard.toString();
-            cmpString = "2\n 1  3 \n 2  0 \n";
-            if (!cmpString.equals(bBoardString))
-                System.out.println(bBoardString);
-            assert (!aBoard.equals(bBoard));
-        }
-
-        // test goal board
-        {
-            assert aBoard.isGoal();
-            assert !bBoard.isGoal();
-        }
-
-        // test hamming value
-        {
-            assert aBoard.hamming() == 0;
-            assert bBoard.hamming() == 2;
-        }
+        // create initial board from file
+        int n = in.readInt();
+        int[][] tiles = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                tiles[i][j] = in.readInt();
+        Board initial = new Board(tiles);
 
         // test manhattan
-        {
-            assert aBoard.manhattan() == 0;
-            assert bBoard.manhattan() == 4;
-        }
-
-        // test neighboring boards
-        {
-            int[][] cmp1 = { { 1, 0 }, { 3, 2 } };
-            int[][] cmp2 = { { 1, 2 }, { 0, 3 } };
-            ArrayList<Board> cmpBoards = new ArrayList<>();
-            cmpBoards.add(new Board(cmp1));
-            cmpBoards.add(new Board(cmp2));
-            int count = 0;
-            for (Board a : aBoard.neighbors()) {
-                for (Board b : cmpBoards) {
-                    if (a.equals(b))
-                        count++;
-                }
-            }
-            assert count == 2;
-            int[][] t5 = { { 1, 2, 3 }, { 4, 0, 5 }, { 6, 7, 8 } };
-            aBoard = new Board(t5);
-            int[][] t5Cmp1 = { { 1, 0, 3 }, { 4, 2, 5 }, { 6, 7, 8 } };
-            int[][] t5Cmp2 = { { 1, 2, 3 }, { 0, 4, 5 }, { 6, 7, 8 } };
-            int[][] t5Cmp3 = { { 1, 2, 3 }, { 4, 7, 5 }, { 6, 0, 8 } };
-            int[][] t5Cmp4 = { { 1, 2, 3 }, { 4, 5, 0 }, { 6, 7, 8 } };
-            ArrayList<Board> t5CmpBoards = new ArrayList<>();
-            t5CmpBoards.add(new Board(t5Cmp1));
-            t5CmpBoards.add(new Board(t5Cmp2));
-            t5CmpBoards.add(new Board(t5Cmp3));
-            t5CmpBoards.add(new Board(t5Cmp4));
-            int t5CmpCount = 0;
-            for (Board a : aBoard.neighbors()) {
-                for (Board b : t5CmpBoards) {
-                    if (a.equals(b))
-                        t5CmpCount++;
-                }
-            }
-            assert t5CmpCount == 4;
-        }
-
-        // test twin
-        {
-            // recycle t5 and aBoard
-            int testIteration = 50;
-            for (int t = 0; t < testIteration; t++) {
-                Board twinBoard = aBoard.twin();
-                assert !aBoard.equals(twinBoard);
-            }
-        }
+        System.out.printf(
+            "File: %s\nBoard:\n%sManhattan: %d\n",
+            fileName, initial, initial.manhattan());
     }
 }
