@@ -3,25 +3,20 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 public class Solver {
 
     private Stack<Board> solutionTrace = null;
     private int solutionMoves = -1;
 
-    // debugging
-    private ArrayList<SearchNode> solutionNodes = new ArrayList<>();
-
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
-
-        int initialBoardManhattan = initial.manhattan();
-
+        // validate input
+        // validation should be at the VERY BEGINNING
         if (initial == null || initial.dimension() == 0) {
             throw new IllegalArgumentException("Solver - invalid input");
         }
+
+        int initialBoardManhattan = initial.manhattan();
 
         // PQs are only used in the constructor
         // no need to create them as instance variables

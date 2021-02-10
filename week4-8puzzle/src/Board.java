@@ -1,21 +1,21 @@
-import java.util.Arrays;
 import java.util.ArrayList;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.In;
 
 public class Board {
-    private char[] tiles;
-    private int zeroIndex;
-    private int dimension;
-    // private boolean isGoalBoard;
-    
     // cache fixed values to avoid redundant and repetitive computation
-    // private char[] goalBoardTiles;
+    private final char[] tiles;
+    private final int dimension;
+    private int zeroIndex;
     private int hammingDistance = 0;
     private int manhattanDistance = 0;
-    private String boardStringRepr = "";
+    private final boolean isGoalBoard;
+
+    // String representation doesn't change
+    private String boardStringRepr = null;
+
+    // return consistent twin board for the same board instance
     private Board twinBoard = null;
-    private boolean isGoalBoard;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -41,16 +41,11 @@ public class Board {
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
                 int currentValue = tiles[i][j];
-                // int currentIndex = index(i, j);
                 this.tiles[index(i, j)] = (char) currentValue;
-                // this.tiles[i][j] = valueToCopy;
-                // goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
-                // goalBoardTiles[i][j] = i * dim + (j + 1);
                 if (currentValue == 0) {
                     this.zeroIndex = i * dim + j;
                 }
 
-                // int currentValue = (int) this.tiles[index(i, j)];
                 if (currentValue != 0 && currentValue != expectedValue) {
                     // hamming
                     this.hammingDistance++;
@@ -72,7 +67,7 @@ public class Board {
 
     // string representation of this board
     public String toString() {
-        if (this.boardStringRepr.length() == 0) {
+        if (this.boardStringRepr == null) {
             int dim = dimension();
 
             StringBuilder s = new StringBuilder();
@@ -138,20 +133,6 @@ public class Board {
     }
 
     /**
-     * The expected value on a goal board at certain index.
-     * 
-     * row and col and 0 indexed.
-     **/
-    private int expectedValue(int row, int col) {
-        int dim = dimension();
-
-        if (row == dim - 1 && col == dim - 1)
-            return 0;
-
-        return row * dim + (col + 1);
-    }
-
-    /**
      * helper function for manhattan to calculate supposed row position 0 indexed.
      **/
     private int expectedRow(int value) {
@@ -172,59 +153,10 @@ public class Board {
         return (value - 1) % dim;
     }
 
-    private Board goalBoard() {
-        int dim = dimension();
-        int[][] targetTiles = new int[dim][dim];
-        int expectedValue = 1;
-
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                targetTiles[i][j] = expectedValue;
-                expectedValue++;
-                // targetTiles[i][j] = (int) goalBoardTiles[index(i, j)];
-            }
-        }
-
-        Board goalBoard = new Board(targetTiles);
-        return goalBoard;
-        // int dim = dimension();
-        // int[][] goalBoardTiles = new int[dim][dim];
-        // int goalElement = 1;
-
-        // for (int i = 0; i < dim; i++) {
-            // for (int j = 0; j < dim; j++) {
-                // if (i == dim - 1 && j == dim - 1) {
-                    // goalBoardTiles[i][j] = 0;
-                // } else {
-                    // goalBoardTiles[i][j] = goalElement;
-                    // goalElement++;
-                // }
-            // }
-        // }
-
-        // Board goalBoard = new Board(goalBoardTiles);
-        // return goalBoard;
-    }
 
     // is this board the goal board?
     public boolean isGoal() {
-        // Board target = goalBoard();
-        // boolean isGoalBoard = this.equals(target);
         return this.isGoalBoard;
-
-        // int dim = dimension();
-        // int goalElement = 1;
-
-        // for (int i = 0; i < dim; i++) {
-        // for (int j = 0; j < dim; j++) {
-        // if (this.tiles[i][j] != goalElement) {
-        // if (i != dim - 1 || j != dim - 1) return false;
-        // }
-        // goalElement++;
-        // }
-        // }
-
-        // return true;
     }
 
     /** 
@@ -348,11 +280,6 @@ public class Board {
         // every board with dim > 1 must have twins
         // otherwise return null
         if (dim > 1 && this.twinBoard == null) {
-
-            // edge case: no twin board
-            if (dim == 0 || dim == 1)
-                return null;
-
             int elementOneIndex = 0, elementTwoIndex = 0;
 
             int[][] twinBoardTiles = new int[dim][dim];
@@ -398,11 +325,11 @@ public class Board {
 
         // create initial board from file
         int n = in.readInt();
-        int[][] tiles = new int[n][n];
+        int[][] testTiles = new int[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                tiles[i][j] = in.readInt();
-        Board initial = new Board(tiles);
+                testTiles[i][j] = in.readInt();
+        Board initial = new Board(testTiles);
 
         // test manhattan
         System.out.printf(
