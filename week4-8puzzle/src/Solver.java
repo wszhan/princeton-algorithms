@@ -1,12 +1,14 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Stack;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Solver {
 
-    private ArrayList<Board> solutionTrace = null;
+    private Stack<Board> solutionTrace = null;
     private int solutionMoves = -1;
 
     // debugging
@@ -29,31 +31,27 @@ public class Solver {
         // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
         gameTreeMain.insert(rootNode);
-        // SearchNode dequedNodeMain = gameTreeMain.delMin();
 
         // twin game tree to find unsolvable board
         // no need to keep track
         Board twinBoard = initial.twin();
         SearchNode twinRootNode = new SearchNode(null, twinBoard, 0);
         gameTreeTwin.insert(twinRootNode);
-        // SearchNode dequedNodeTwin = gameTreeTwin.delMin();
 
         // repeat until a goal board is found
         // alternating between main game tree and twin game tree
         boolean searchMain = true;
-        // boolean twinGoalFound = false;
+        // if solution node is null after while loop,
+        // that means solution is found for twin
+        // and the initial board is unsolvable
         SearchNode solutionNode = null;
 
         while (true) {
             MinPQ<SearchNode> gameTree;
 
             if (searchMain) { 
-                // currentBoard = dequedNodeMain.currBoard;
-                // dequedNode = dequedNodeMain;
                 gameTree = gameTreeMain;
             } else {
-                // currentBoard = dequedNodeTwin.currBoard;
-                // dequedNode = dequedNodeTwin;
                 gameTree = gameTreeTwin;
             }
 
@@ -80,6 +78,10 @@ public class Solver {
                 if (prevNode == null || !neighbor.equals(prevNode.currBoard)) {
                     SearchNode node = new SearchNode(dequeuedNode, neighbor, dequeuedNode.moves+1);
                     gameTree.insert(node);
+                // } else {
+                    // System.out.printf(
+                        // "prev board:\n%s\nthis neighor\'s board:\n%s\nEqual? %b\n=============\n",
+                        // prevNode.currBoard, neighbor, neighbor.equals(prevNode.currBoard));
                 }
             }
 
@@ -87,53 +89,18 @@ public class Solver {
             searchMain = !searchMain;
         }
 
+        // build trace reversely with stack
         if (solutionNode != null) {
-            solutionTrace = new ArrayList<>();
+            solutionTrace = new Stack<>();
             this.solutionMoves = solutionNode.moves;
             SearchNode curr = solutionNode;
 
             while (curr != null) {
-                solutionTrace.add(curr.currBoard);
+                solutionTrace.push(curr.currBoard);
                 curr = curr.prevNode;
             }
-
-            Collections.reverse(solutionTrace);
         }
-
-        // Feb 10, 2021
-        // only one solution is needed. solution() returns traces.
-        // Feb 09, 2021
-        // dequeue nodes until it is not a goal board
-        // to make sure all goal boards are found
-        // Could be redundant?
-        // while (solutionNode != null 
-                // && solutionNode.currBoard.isGoal() 
-                // && solutionNode.moves == this.solutionMoves
-                // && !gameTreeMain.isEmpty()) {
-            // solutionNodes.add(solutionNode);
-            // goalBoards.add(solutionNode.currBoard);
-            // solutionNode = gameTreeMain.delMin();
-        // }
     }
-
-    // public void printTrace() {
-        // int count = 0;
-        // for (SearchNode node : solutionNodes) {
-            // count++;
-            // SearchNode currNode = node;
-            // Board currentBoard = currNode.currBoard;
-            // System.out.printf("Trace of Solution #%d:\n", count);
-            // do {
-                // System.out.printf("Moves already made: %d\nManhattan: %d\nHamming: %d\n",
-                    // currNode.moves,
-                    // currNode.manhattan,
-                    // currNode.hamming
-                    // );
-                // System.out.println(currNode.currBoard);
-                // currNode = currNode.prevNode;
-            // } while (currNode != null);
-        // }
-    // }
 
     private class SearchNode implements Comparable<SearchNode> {
         SearchNode prevNode;
@@ -158,24 +125,30 @@ public class Solver {
         }
 
         /**
+         * Manhattan priority.
+         */
+        private int manhattanPriority() {
+            return this.moves + this.manhattan;
+        }
+
+        /**
          * Prioritize moves while comparing search nodes.
          */
         public int compareTo(SearchNode that) {
-            if (this.moves > that.moves) { 
+            int thisMP = this.manhattanPriority();
+            int thatMP = that.manhattanPriority();
+
+            if (thisMP > thatMP) { 
                 return 1;
-            } else if (this.moves < that.moves) {
+            } else if (thisMP < thatMP) {
                 return -1;
-            // } else if (this.hamming == that.hamming) {
-                // // break ties
-                // if (this.manhattan > that.manhattan) return 1;
-                // else if (this.manhattan < that.manhattan) return -1;
-            } else if (this.manhattan == that.manhattan) {
-                // break ties
-                if (this.hamming > that.hamming) return 1;
-                else if (this.hamming < that.hamming) return -1;
             } else {
                 if (this.manhattan > that.manhattan) return 1;
                 else if (this.manhattan < that.manhattan) return -1;
+                else {
+                    if (this.hamming > that.hamming) return 1;
+                    else if (this.hamming < that.hamming) return -1;
+                }
             }
 
             return 0;
@@ -191,8 +164,8 @@ public class Solver {
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        int shortestPathMoves = this.solutionMoves;
-        return shortestPathMoves;
+        int movesToGoal = this.solutionMoves;
+        return movesToGoal;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
@@ -237,8 +210,8 @@ public class Solver {
                 // count++;
             // }
 
-            // // for (Board board : solver.solution())
-                // // StdOut.println(board);
+        // for (Board board : solver.solution())
+            // StdOut.println(board);
         }
     }
 }
