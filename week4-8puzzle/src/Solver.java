@@ -6,7 +6,7 @@ import java.util.Collections;
 
 public class Solver {
 
-    private ArrayList<Board> solutionTrace;
+    private ArrayList<Board> solutionTrace = null;
     private int solutionMoves = -1;
 
     // debugging
@@ -24,7 +24,6 @@ public class Solver {
             throw new IllegalArgumentException("Solver - invalid input");
         }
 
-        solutionTrace = new ArrayList<>();
 
         // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
@@ -88,12 +87,15 @@ public class Solver {
         }
 
         if (solutionNode != null) {
+            solutionTrace = new ArrayList<>();
             this.solutionMoves = solutionNode.moves;
             SearchNode curr = solutionNode;
+
             while (curr != null) {
                 solutionTrace.add(curr.currBoard);
                 curr = curr.prevNode;
             }
+
             Collections.reverse(solutionTrace);
         }
 
@@ -181,7 +183,8 @@ public class Solver {
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-        boolean goalBoardFound = !solutionTrace.isEmpty();
+        boolean goalBoardFound = solutionTrace != null;
+        // boolean goalBoardFound = !solutionTrace.isEmpty();
         return goalBoardFound;
     }
 
