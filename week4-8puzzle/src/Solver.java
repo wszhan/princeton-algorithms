@@ -2,10 +2,11 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.MinPQ;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Solver {
 
-    private ArrayList<Board> goalBoards;
+    private ArrayList<Board> solutionTrace;
     private int solutionMoves = -1;
 
     // debugging
@@ -23,7 +24,7 @@ public class Solver {
             throw new IllegalArgumentException("Solver - invalid input");
         }
 
-        goalBoards = new ArrayList<>();
+        solutionTrace = new ArrayList<>();
 
         // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
@@ -40,7 +41,7 @@ public class Solver {
         // repeat until a goal board is found
         // alternating between main game tree and twin game tree
         boolean searchMain = true;
-        boolean twinGoalFound = false;
+        // boolean twinGoalFound = false;
         SearchNode solutionNode = null;
 
         while (true) {
@@ -86,19 +87,30 @@ public class Solver {
             searchMain = !searchMain;
         }
 
-        if (solutionNode != null) this.solutionMoves = solutionNode.moves;
+        if (solutionNode != null) {
+            this.solutionMoves = solutionNode.moves;
+            SearchNode curr = solutionNode;
+            while (curr != null) {
+                solutionTrace.add(curr.currBoard);
+                curr = curr.prevNode;
+            }
+            Collections.reverse(solutionTrace);
+        }
 
+        // Feb 10, 2021
+        // only one solution is needed. solution() returns traces.
+        // Feb 09, 2021
         // dequeue nodes until it is not a goal board
         // to make sure all goal boards are found
         // Could be redundant?
-        while (solutionNode != null 
-                && solutionNode.currBoard.isGoal() 
-                && solutionNode.moves == this.solutionMoves
-                && !gameTreeMain.isEmpty()) {
-            solutionNodes.add(solutionNode);
-            goalBoards.add(solutionNode.currBoard);
-            solutionNode = gameTreeMain.delMin();
-        }
+        // while (solutionNode != null 
+                // && solutionNode.currBoard.isGoal() 
+                // && solutionNode.moves == this.solutionMoves
+                // && !gameTreeMain.isEmpty()) {
+            // solutionNodes.add(solutionNode);
+            // goalBoards.add(solutionNode.currBoard);
+            // solutionNode = gameTreeMain.delMin();
+        // }
     }
 
     // public void printTrace() {
@@ -169,7 +181,7 @@ public class Solver {
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-        boolean goalBoardFound = !goalBoards.isEmpty();
+        boolean goalBoardFound = !solutionTrace.isEmpty();
         return goalBoardFound;
     }
 
@@ -181,17 +193,18 @@ public class Solver {
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        return goalBoards;
+        return solutionTrace;
     }
 
     // test client (see below)
     public static void main(String[] args) {
-        boolean specificTest = true;
+        boolean specificTest = false;
 
         In in; 
         if (specificTest) {
             // in = new In("puzzle05.txt");
-            in = new In("puzzle2x2-unsolvable1.txt");
+            // in = new In("puzzle2x2-unsolvable1.txt");
+            in = new In("puzzle01.txt");
         } else {
             in = new In(args[0]);
         }
@@ -212,8 +225,16 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
-            for (Board board : solver.solution())
-                StdOut.println(board);
+
+            // test trace
+            int count = 0;
+            for (Board b : solver.solution()) {
+                System.out.printf("move #%d:\n%s", count, b);
+                count++;
+            }
+
+            // for (Board board : solver.solution())
+                // StdOut.println(board);
         }
     }
 }
