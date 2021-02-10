@@ -15,6 +15,7 @@ public class Board {
     private int manhattanDistance = 0;
     private String boardStringRepr = "";
     private Board twinBoard = null;
+    private boolean isGoalBoard;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -28,34 +29,28 @@ public class Board {
             throw new IllegalArgumentException("array in tiles is null or empty");
         }
 
-        // init instance variable
-        this.tiles = new char[tiles.length * tiles.length];
         // this.tiles = new int[tiles.length][tiles.length];
         int dim = tiles.length;
-        this.dimension = dim;
-        // this.goalBoardTiles = new char[tiles.length * tiles.length];
+        this.dimension = tiles.length;
+        // init instance variable
+        this.tiles = new char[dim * dim];
 
         // deep copy
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                int valueToCopy = tiles[i][j];
-                // int currentIndex = index(i, j);
-                this.tiles[index(i, j)] = (char) valueToCopy;
-                // this.tiles[i][j] = valueToCopy;
-                // goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
-                // goalBoardTiles[i][j] = i * dim + (j + 1);
-                if (valueToCopy == 0) {
-                    this.zeroIndex = i * dim + j;
-                }
-            }
-        }
-
         // init hamming distance and manhattan
         int expectedValue = 1;
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
-                int currentValue = (int) this.tiles[index(i, j)];
+                int currentValue = tiles[i][j];
+                // int currentIndex = index(i, j);
+                this.tiles[index(i, j)] = (char) currentValue;
+                // this.tiles[i][j] = valueToCopy;
+                // goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
+                // goalBoardTiles[i][j] = i * dim + (j + 1);
+                if (currentValue == 0) {
+                    this.zeroIndex = i * dim + j;
+                }
 
+                // int currentValue = (int) this.tiles[index(i, j)];
                 if (currentValue != 0 && currentValue != expectedValue) {
                     // hamming
                     this.hammingDistance++;
@@ -70,6 +65,9 @@ public class Board {
                 expectedValue++;
             }
         }
+
+        // is this a goal board?
+        isGoalBoard = this.hammingDistance == 0;
     }
 
     // string representation of this board
@@ -210,9 +208,9 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        Board target = goalBoard();
-        boolean isGoalBoard = this.equals(target);
-        return isGoalBoard;
+        // Board target = goalBoard();
+        // boolean isGoalBoard = this.equals(target);
+        return this.isGoalBoard;
 
         // int dim = dimension();
         // int goalElement = 1;
