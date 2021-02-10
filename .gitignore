@@ -6,6 +6,8 @@
 /2.1-*
 /2.2-*
 
+/week4-8puzzle/src/Test.*
+
 */.idea/*
 */.lift/*
 */.vscode/*

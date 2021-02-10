@@ -5,16 +5,14 @@ import edu.princeton.cs.algs4.In;
 
 public class Board {
     private char[] tiles;
-    // private int[][] tiles;
     private int zeroIndex;
     private int dimension;
     // private boolean isGoalBoard;
     
     // cache fixed values to avoid redundant and repetitive computation
-    private char[] goalBoardTiles;
-    // private int[][] goalBoardTiles;
-    private int hammingDistance = -1;
-    private int manhattanDistance = -1;
+    // private char[] goalBoardTiles;
+    private int hammingDistance = 0;
+    private int manhattanDistance = 0;
     private String boardStringRepr = "";
     private Board twinBoard = null;
 
@@ -30,23 +28,21 @@ public class Board {
             throw new IllegalArgumentException("array in tiles is null or empty");
         }
 
-        // for goal board constructor
-
         // init instance variable
         this.tiles = new char[tiles.length * tiles.length];
         // this.tiles = new int[tiles.length][tiles.length];
         int dim = tiles.length;
         this.dimension = dim;
-        this.goalBoardTiles = new char[tiles.length * tiles.length];
+        // this.goalBoardTiles = new char[tiles.length * tiles.length];
 
         // deep copy
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
                 int valueToCopy = tiles[i][j];
-                int currentIndex = index(i, j);
+                // int currentIndex = index(i, j);
                 this.tiles[index(i, j)] = (char) valueToCopy;
                 // this.tiles[i][j] = valueToCopy;
-                goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
+                // goalBoardTiles[index(i, j)] = (char) expectedValue(i, j); 
                 // goalBoardTiles[i][j] = i * dim + (j + 1);
                 if (valueToCopy == 0) {
                     this.zeroIndex = i * dim + j;
@@ -54,10 +50,26 @@ public class Board {
             }
         }
 
-        // Board compareBoard = this.goalBoard();
-        // this.isGoalBoard= equals(compareBoard);
-        this.hammingDistance = hamming();
-        this.manhattanDistance = manhattan();
+        // init hamming distance and manhattan
+        int expectedValue = 1;
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                int currentValue = (int) this.tiles[index(i, j)];
+
+                if (currentValue != 0 && currentValue != expectedValue) {
+                    // hamming
+                    this.hammingDistance++;
+
+                    // manhattan
+                    int expectedRow = expectedRow(currentValue);
+                    int expectedColumn = expectedColumn(currentValue);
+                    int currentManhattan = Math.abs(expectedRow - i) + Math.abs(expectedColumn - j);
+                    this.manhattanDistance += currentManhattan;
+                }
+
+                expectedValue++;
+            }
+        }
     }
 
     // string representation of this board
@@ -70,7 +82,7 @@ public class Board {
 
             for (int i = 0; i < dim; i++) {
                 for (int j = 0; j < dim; j++) {
-                    int currentIndex = index(i, j);
+                    // int currentIndex = index(i, j);
                     s.append(String.format("%2d ", (int) this.tiles[index(i, j)]));
                 }
                 s.append("\n");
@@ -93,18 +105,18 @@ public class Board {
     /**
      * 1-D index to row of 2-D index tuple (row, column). 
      */
-    private int row(int index) {
-        int dim = dimension();
-        return (index - 1) / dim;
-    }
+    // private int row(int index) {
+        // int dim = dimension();
+        // return (index - 1) / dim;
+    // }
 
     /**
      * 1-D index to column of 2-D index tuple (row, column). 
      */
-    private int column(int index) {
-        int dim = dimension();
-        return index % dim;
-    }
+    // private int column(int index) {
+        // int dim = dimension();
+        // return index % dim;
+    // }
 
     /**
      * 2-D index tuple (row, column) to 1-D index.
@@ -119,58 +131,12 @@ public class Board {
      *         board) of the current board
      */
     public int hamming() {
-        if (this.hammingDistance != -1) {
-            int hamming = this.hammingDistance;
-            return hamming;
-        }
-
-        int dim = dimension();
-        int goalElement = 1;
-        int hammingValue = 0;
-
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                int currentValue = (int) this.tiles[index(i, j)];
-                if (currentValue != goalElement) {
-                    if (i != dim - 1 || j != dim - 1)
-                        hammingValue++;
-                }
-                goalElement++;
-            }
-        }
-
-        return hammingValue;
+        return this.hammingDistance;
     }
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
-        if (this.manhattanDistance != -1) {
-            int manhattan = this.manhattanDistance;
-            return manhattan;
-        }
-
-        // init
-        int totalDistance = 0;
-        int expectedValue;
-        int dim = dimension();
-
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                int currentValue = (int) this.tiles[index(i, j)];
-                expectedValue = expectedValue(i, j);
-                
-                // do not compute if the current value is 0 because it is
-                // not a tile, at least in this specific context
-                if (currentValue != 0 && expectedValue != currentValue) {
-                    int expectedRow = expectedRow(currentValue);
-                    int expectedColumn = expectedColumn(currentValue);
-                    int currentManhattan = Math.abs(expectedRow - i) + Math.abs(expectedColumn - j);
-                    totalDistance += currentManhattan;
-                }
-            }
-        }
-
-        return totalDistance;
+        return this.manhattanDistance;
     }
 
     /**
@@ -211,10 +177,13 @@ public class Board {
     private Board goalBoard() {
         int dim = dimension();
         int[][] targetTiles = new int[dim][dim];
+        int expectedValue = 1;
 
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
-                targetTiles[i][j] = (int) goalBoardTiles[index(i, j)];
+                targetTiles[i][j] = expectedValue;
+                expectedValue++;
+                // targetTiles[i][j] = (int) goalBoardTiles[index(i, j)];
             }
         }
 
@@ -299,7 +268,6 @@ public class Board {
         int zeroRowIndex = this.zeroIndex / dim;
         int zeroColIndex = this.zeroIndex % dim;
 
-        //
         int[][] neighboringTiles = new int[dim][dim];
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
@@ -377,37 +345,40 @@ public class Board {
      * the life time of a same Board instance?
      **/
     public Board twin() {
-        if (this.twinBoard == null) {
         int dim = dimension();
 
-        // edge case: no twin board
-        if (dim == 0 || dim == 1)
-            return null;
+        // every board with dim > 1 must have twins
+        // otherwise return null
+        if (dim > 1 && this.twinBoard == null) {
 
-        int elementOneIndex = 0, elementTwoIndex = 0;
+            // edge case: no twin board
+            if (dim == 0 || dim == 1)
+                return null;
 
-        int[][] twinBoardTiles = new int[dim][dim];
-        // for (int i = 0; i < dim; i++) {
-            // twinBoardTiles[i] = Arrays.copyOf(this.tiles[i], dim);
-        // }
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                twinBoardTiles[i][j] = (int) this.tiles[index(i, j)];
+            int elementOneIndex = 0, elementTwoIndex = 0;
+
+            int[][] twinBoardTiles = new int[dim][dim];
+            // for (int i = 0; i < dim; i++) {
+                // twinBoardTiles[i] = Arrays.copyOf(this.tiles[i], dim);
+            // }
+            for (int i = 0; i < dim; i++) {
+                for (int j = 0; j < dim; j++) {
+                    twinBoardTiles[i][j] = (int) this.tiles[index(i, j)];
+                }
             }
+
+            // select two elements uniformly and make sure they are i. non-zero ii. not
+            // equal
+            while (elementOneIndex == zeroIndex || elementTwoIndex == zeroIndex || elementOneIndex == elementTwoIndex) {
+                elementOneIndex = StdRandom.uniform(0, dim * dim);
+                elementTwoIndex = StdRandom.uniform(0, dim * dim);
+            }
+
+            swapElements(twinBoardTiles, elementOneIndex / dim, elementOneIndex % dim, elementTwoIndex / dim,
+                    elementTwoIndex % dim);
+
+            this.twinBoard = new Board(twinBoardTiles);
         }
-
-        // select two elements uniformly and make sure they are i. non-zero ii. not
-        // equal
-        while (elementOneIndex == zeroIndex || elementTwoIndex == zeroIndex || elementOneIndex == elementTwoIndex) {
-            elementOneIndex = StdRandom.uniform(0, dim * dim);
-            elementTwoIndex = StdRandom.uniform(0, dim * dim);
-        }
-
-        swapElements(twinBoardTiles, elementOneIndex / dim, elementOneIndex % dim, elementTwoIndex / dim,
-                elementTwoIndex % dim);
-
-        this.twinBoard = new Board(twinBoardTiles);
-    }
 
         return this.twinBoard;
     }

@@ -15,15 +15,16 @@ public class Solver {
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
 
-        // PQs are only used in the constructor
-        // no need to create them as instance variables
-        MinPQ<SearchNode> gameTreeMain = new MinPQ<>();
-        MinPQ<SearchNode> gameTreeTwin = new MinPQ<>();
+        int initialBoardManhattan = initial.manhattan();
 
         if (initial == null || initial.dimension() == 0) {
             throw new IllegalArgumentException("Solver - invalid input");
         }
 
+        // PQs are only used in the constructor
+        // no need to create them as instance variables
+        MinPQ<SearchNode> gameTreeMain = new MinPQ<>(initialBoardManhattan);
+        MinPQ<SearchNode> gameTreeTwin = new MinPQ<>(initialBoardManhattan);
 
         // initialization of the game tree 
         SearchNode rootNode = new SearchNode(null, initial, 0);
@@ -164,10 +165,10 @@ public class Solver {
                 return 1;
             } else if (this.moves < that.moves) {
                 return -1;
-            } else if (this.hamming == that.hamming) {
-                // break ties
-                if (this.manhattan > that.manhattan) return 1;
-                else if (this.manhattan < that.manhattan) return -1;
+            // } else if (this.hamming == that.hamming) {
+                // // break ties
+                // if (this.manhattan > that.manhattan) return 1;
+                // else if (this.manhattan < that.manhattan) return -1;
             } else if (this.manhattan == that.manhattan) {
                 // break ties
                 if (this.hamming > that.hamming) return 1;
@@ -229,15 +230,15 @@ public class Solver {
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
 
-            // test trace
-            int count = 0;
-            for (Board b : solver.solution()) {
-                System.out.printf("move #%d:\n%s", count, b);
-                count++;
-            }
+            // // test trace
+            // int count = 0;
+            // for (Board b : solver.solution()) {
+                // System.out.printf("move #%d:\n%s", count, b);
+                // count++;
+            // }
 
-            // for (Board board : solver.solution())
-                // StdOut.println(board);
+            // // for (Board board : solver.solution())
+                // // StdOut.println(board);
         }
     }
 }
