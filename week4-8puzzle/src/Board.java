@@ -65,7 +65,16 @@ public class Board {
         isGoalBoard = this.hammingDistance == 0;
     }
 
-    // string representation of this board
+
+    /**
+     * string representation of this board
+     * 
+     * makes sense to use strings for comparison because:
+     * i. two equals boards should have the identical string
+     *      representation;
+     * ii. string representation is cached so that no loop is
+     *      needed to compute equality.
+     */
     public String toString() {
         if (this.boardStringRepr == null) {
             int dim = dimension();
@@ -95,21 +104,6 @@ public class Board {
         return dim;
     }
 
-    /**
-     * 1-D index to row of 2-D index tuple (row, column). 
-     */
-    // private int row(int index) {
-        // int dim = dimension();
-        // return (index - 1) / dim;
-    // }
-
-    /**
-     * 1-D index to column of 2-D index tuple (row, column). 
-     */
-    // private int column(int index) {
-        // int dim = dimension();
-        // return index % dim;
-    // }
 
     /**
      * 2-D index tuple (row, column) to 1-D index.
@@ -119,6 +113,7 @@ public class Board {
         return row * dim + col;
     }
 
+
     /**
      * @return the hamming value, or the tiles out of place (in terms of the goal
      *         board) of the current board
@@ -127,10 +122,14 @@ public class Board {
         return this.hammingDistance;
     }
 
-    // sum of Manhattan distances between tiles and goal
+
+    /**
+     * Total Manhattan distances (not Manhattan priority).
+     */
     public int manhattan() {
         return this.manhattanDistance;
     }
+
 
     /**
      * helper function for manhattan to calculate supposed row position 0 indexed.
@@ -154,22 +153,27 @@ public class Board {
     }
 
 
-    // is this board the goal board?
+    /**
+     * Is this board the goal board? 
+     */
     public boolean isGoal() {
         return this.isGoalBoard;
     }
+
 
     /** 
      * does this board equal y?
      * A hack is used.
      */
     public boolean equals(Object y) {
-        if (y == this)
-            return true;
-        if (y == null)
-            return false;
-        if (y.getClass() != this.getClass())
-            return false;
+        if (y == null) return false;
+
+        // same instance
+        if (y == this) return true;
+
+        // different class
+        if (y.getClass() != this.getClass()) return false;
+
         Board yBoard = (Board) y;
         if (yBoard.dimension() != dimension())
             return false;
@@ -182,8 +186,9 @@ public class Board {
         return false;
     }
 
+
     /**
-     * all neighboring boards (next possible state)
+     * all neighboring boards (next possible states).
      **/
     public Iterable<Board> neighbors() {
         ArrayList<Board> neighboringBoards = new ArrayList<>();
@@ -204,9 +209,6 @@ public class Board {
                 neighboringTiles[i][j] = (int) this.tiles[index(i, j)];
             }
         }
-        // for (int i = 0; i < dim; i++) {
-            // neighboringTiles[i] = Arrays.copyOf(this.tiles[i], dim);
-        // }
 
         if (zeroRowIndex < dim - 1) {
             // swap
@@ -317,7 +319,6 @@ public class Board {
         if (specificTest) {
             fileName = "puzzle01.txt";
             in = new In(fileName);
-            // in = new In("puzzle2x2-unsolvable1.txt");
         } else {
             fileName = args[0];
             in = new In(fileName);

@@ -73,10 +73,6 @@ public class Solver {
                 if (prevNode == null || !neighbor.equals(prevNode.currBoard)) {
                     SearchNode node = new SearchNode(dequeuedNode, neighbor, dequeuedNode.moves+1);
                     gameTree.insert(node);
-                // } else {
-                    // System.out.printf(
-                        // "prev board:\n%s\nthis neighor\'s board:\n%s\nEqual? %b\n=============\n",
-                        // prevNode.currBoard, neighbor, neighbor.equals(prevNode.currBoard));
                 }
             }
 
@@ -197,16 +193,6 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
-
-            // // test trace
-            // int count = 0;
-            // for (Board b : solver.solution()) {
-                // System.out.printf("move #%d:\n%s", count, b);
-                // count++;
-            // }
-
-        // for (Board board : solver.solution())
-            // StdOut.println(board);
         }
     }
 }
