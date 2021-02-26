@@ -5,6 +5,9 @@
 /1.4-analysis-of-algs
 /2.1-*
 /2.2-*
+/java-source-code
+/3.1*
+/interview*
 
 /week4-8puzzle/src/Test.*
 
@@ -22,7 +25,7 @@
 *.txt
 *.class
 *.zip
-
+*.bat
 *.swp*
 *.un~*
 
