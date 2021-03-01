@@ -15,12 +15,16 @@ public class KdTree {
     }
 
     private static class Node {
+        // static constants to check of which coordinate is 
+        // the node compared against
         private static final boolean COMPARE_X = true;
         private static final boolean COMPARE_Y = false;
 
+        // three variables once set then unchanged
         private final Point2D p;
         private final RectHV rect;
         private final boolean comp; 
+
         private Node lb = null; // left/bottom
         private Node rt = null; // right/top
 
@@ -123,6 +127,7 @@ public class KdTree {
                 lessPromisingNode = node.lb;
             }
 
+        // must look into the promising branch 
         Node promisingNodeResult = findNearest(p, morePromisingNode, championNode); 
         if (promisingNodeResult != null) {
             double promisingResultDistSquared = promisingNodeResult.p.distanceSquaredTo(p);
@@ -131,8 +136,6 @@ public class KdTree {
                 championDistSquared = promisingResultDistSquared;
             }
         }
-
-
 
         if (lessPromisingNode != null) {
             double lessPromisingPossibleDistSqared = lessPromisingNode.rect.distanceSquaredTo(p);
@@ -147,6 +150,7 @@ public class KdTree {
 
         return championNode;
     }
+
 
     public boolean contains(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
@@ -232,6 +236,7 @@ public class KdTree {
         return new RectHV(rectMinX, rectMinY, rectMaxX, rectMaxY);
     }
 
+
     /**
      * 
      * @param node the previous node traversed
@@ -265,6 +270,7 @@ public class KdTree {
         return node;
     }
 
+
     /**
      * Compare point in the current node with the given point.
      * 
@@ -291,14 +297,17 @@ public class KdTree {
         return cmp;
     }
 
+
     public int size() {
         int n = this.numberOfPoints;
         return n;
     }
 
+
     public boolean isEmpty() {
         return this.numberOfPoints == 0;
     }
+
 
     public static void main(String[] args) {
         KdTree kdt = new KdTree();
