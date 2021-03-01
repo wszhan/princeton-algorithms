@@ -6,7 +6,7 @@ import edu.princeton.cs.algs4.RectHV;
 
 public class PointSET {
 
-    private TreeSet<Point2D> points;
+    private final TreeSet<Point2D> points;
 
     public PointSET() {
         points = new TreeSet<Point2D>();
@@ -44,7 +44,7 @@ public class PointSET {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
 
-        double minDistanceSquared = Double.MAX_VALUE;
+        double minDistanceSquared = Double.POSITIVE_INFINITY;
         Point2D closest = null;
 
         for (Point2D candidate : points) {
@@ -75,7 +75,7 @@ public class PointSET {
     }
 
     public boolean isEmpty() {
-        return points.size() == 0;
+        return points.isEmpty();
     }
 
     public static void main(String[] args) {

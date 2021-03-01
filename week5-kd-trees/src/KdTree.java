@@ -1,8 +1,5 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Stack;
-import java.util.TreeSet;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -79,7 +76,7 @@ public class KdTree {
     }
 
     private void traverse(Node node, List<Point2D> list, RectHV that) {
-        if (node == null) return ;
+        if (node == null) return;
 
         if (list == null) throw new IllegalArgumentException();
 
@@ -97,12 +94,9 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
 
-        // Node champion = unconditionalFindNearest(p, root, root);
-        Node champion1 = findNearest(p, root, root);
-        
-        // assert champion == champion1 : "something wrong finding nearest neighbor";
+        Node champion = findNearest(p, root, root);
 
-        return champion1 != null ? champion1.p : null;
+        return champion != null ? champion.p : null;
     }
 
 
@@ -262,7 +256,7 @@ public class KdTree {
         int cmp = comparePoint(node, p);
 
         // recursively search based on comparison result
-        if(cmp > 0) {
+        if (cmp > 0) {
             node.lb = put(node.lb, p, node, true); // preset true because it must be LB
         } else if (cmp < 0 || !node.p.equals(p)) {
             node.rt = put(node.rt, p, node, false); // preset true because it must be RT
