@@ -3,9 +3,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import java.util.TreeSet;
-
-import org.w3c.dom.css.Rect;
-
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -24,11 +21,11 @@ public class KdTree {
         private static final boolean COMPARE_X = true;
         private static final boolean COMPARE_Y = false;
 
-        private Point2D p;
-        private RectHV rect;
+        private final Point2D p;
+        private final RectHV rect;
+        private final boolean comp; 
         private Node lb = null; // left/bottom
         private Node rt = null; // right/top
-        private boolean comp; 
 
         Node(Point2D p, boolean compareX, RectHV r) {
             this.p = p;
@@ -82,28 +79,18 @@ public class KdTree {
     }
 
     private void traverse(Node node, List<Point2D> list, RectHV that) {
-        if (node == null || list == null) return ;
+        if (node == null) return ;
 
-        if (that == null) {
-            list.add(node.p);
-        } else {
+        if (list == null) throw new IllegalArgumentException();
+
             if (node.rect.intersects(that)) {
                 if (that.contains(node.p)) {
                     list.add(node.p);
-                } else {
-                    // if (node.p.x() == 1.000000 &&
-                        // node.p.y() == 0.500000) {
-                            // System.out.printf(
-                                // "rect: %s\np: %s\ncontain? %b\n",
-                                // that, node.p, that.contains(node.p)
-                            // );
-                        // }
                 }
+
                 traverse(node.lb, list, that);
                 traverse(node.rt, list, that);
             }
-        }
-
     }
 
 
@@ -111,42 +98,13 @@ public class KdTree {
         if (p == null) throw new IllegalArgumentException();
 
         // Node champion = unconditionalFindNearest(p, root, root);
-        Node champion = findNearest(p, root, root);
+        Node champion1 = findNearest(p, root, root);
         
         // assert champion == champion1 : "something wrong finding nearest neighbor";
 
-        return champion.p;
-        // return champion != null ? champion.p : null;
+        return champion1 != null ? champion1.p : null;
     }
 
-    private Node unconditionalFindNearest(Point2D p, Node node, Node championNode) {
-        if (node == null) return null;
-
-        double championDistSquared = championNode.p.distanceSquaredTo(p);
-        double nodeDistSquared = node.p.distanceSquaredTo(p);
-        if (nodeDistSquared < championDistSquared) {
-            championNode = node; // update
-            championDistSquared = nodeDistSquared;
-        }
-
-        Node lbNearest = unconditionalFindNearest(p, node.lb, championNode);
-        if (lbNearest != null) {
-            double lbNodeDistSquared = lbNearest.p.distanceSquaredTo(p);
-            if (lbNodeDistSquared < championDistSquared) {
-                championNode = lbNearest;
-            }
-        }
-
-        Node rtNearest = unconditionalFindNearest(p, node.rt, championNode);
-        if (rtNearest != null) {
-            double rtNodeDistSquared = rtNearest.p.distanceSquaredTo(p);
-            if (rtNodeDistSquared < championDistSquared) {
-                championNode = rtNearest;
-            }
-        }
-
-        return championNode;
-    }
 
     private Node findNearest(Point2D p, Node node, Node championNode) {
         if (node == null) return null;
@@ -160,12 +118,12 @@ public class KdTree {
 
         Node morePromisingNode = null, lessPromisingNode = null;
 
-        //if (node.lb != null && node.lb.rect.contains(p)) {
+        // look into the more promising half because the search result might
+        // prune the alternative
         if (node.comp == Node.COMPARE_X && p.x() < node.p.x() ||
             node.comp == Node.COMPARE_Y && p.y() < node.p.y()) {
                 morePromisingNode = node.lb;
                 lessPromisingNode = node.rt;
-            // } else if (node.rt != null && node.rt.rect.contains(p)) {
             } else {
                 morePromisingNode = node.rt;
                 lessPromisingNode = node.lb;
@@ -180,18 +138,6 @@ public class KdTree {
             }
         }
 
-        // boolean updated = false;
-        // double lessPromisingResultDistSquared1 = Double.POSITIVE_INFINITY;
-        // // unconditional greedy approach
-        // Node lessPromisingNodeResult1 = findNearest(p, lessPromisingNode, championNode); 
-        // if (lessPromisingNodeResult1 != null) {
-            // lessPromisingResultDistSquared1 = lessPromisingNodeResult1.p.distanceSquaredTo(p);
-            // if (lessPromisingResultDistSquared1 < championDistSquared) {
-                // championNode = lessPromisingNodeResult1;
-                // championDistSquared = lessPromisingResultDistSquared1;
-                // updated = true;
-            // }
-        // }
 
 
         if (lessPromisingNode != null) {
@@ -201,15 +147,6 @@ public class KdTree {
                 double lessPromisingResultDistSquared = lessPromisingNodeResult.p.distanceSquaredTo(p);
                 if (lessPromisingResultDistSquared < championDistSquared) {
                     championNode = lessPromisingNodeResult;
-                } else {
-
-                    // debug
-                    // if (updated) {
-                        // System.out.printf(
-                            // "computerd less promising dist: %f\nmissed less promising dist: %f\n",
-                            // lessPromisingResultDistSquared1, lessPromisingPossibleDistSqared
-                        // );
-                    // }
                 }
             }
         }
@@ -261,7 +198,7 @@ public class KdTree {
      * @param isLB  does p go to the LB branch of the parent node?
      * @return
      */
-    private RectHV computeRect(Node node, Point2D p, boolean isLB) {
+    private RectHV computeRect(Node node, boolean isLB) {
         if (node == null) return new RectHV(0.0, 0.0, 1.0, 1.0);
 
         boolean parentCompareX = node.comp == Node.COMPARE_X;
@@ -316,7 +253,7 @@ public class KdTree {
 
             this.numberOfPoints++;
 
-            RectHV r = computeRect(parentNode, p, isLB);
+            RectHV r = computeRect(parentNode, isLB);
 
             return new Node(p, compareX, r);
         }
@@ -326,9 +263,9 @@ public class KdTree {
 
         // recursively search based on comparison result
         if(cmp > 0) {
-            node.lb = put(node.lb, p, node, cmp > 0);
+            node.lb = put(node.lb, p, node, true); // preset true because it must be LB
         } else if (cmp < 0 || !node.p.equals(p)) {
-            node.rt = put(node.rt, p, node, cmp > 0);
+            node.rt = put(node.rt, p, node, false); // preset true because it must be RT
         }
 
         return node;
