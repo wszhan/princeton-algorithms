@@ -110,7 +110,111 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
 
-        return root != null ? root.p : new Point2D(0.5, 0.5);
+        // Node champion = unconditionalFindNearest(p, root, root);
+        Node champion = findNearest(p, root, root);
+        
+        // assert champion == champion1 : "something wrong finding nearest neighbor";
+
+        return champion.p;
+        // return champion != null ? champion.p : null;
+    }
+
+    private Node unconditionalFindNearest(Point2D p, Node node, Node championNode) {
+        if (node == null) return null;
+
+        double championDistSquared = championNode.p.distanceSquaredTo(p);
+        double nodeDistSquared = node.p.distanceSquaredTo(p);
+        if (nodeDistSquared < championDistSquared) {
+            championNode = node; // update
+            championDistSquared = nodeDistSquared;
+        }
+
+        Node lbNearest = unconditionalFindNearest(p, node.lb, championNode);
+        if (lbNearest != null) {
+            double lbNodeDistSquared = lbNearest.p.distanceSquaredTo(p);
+            if (lbNodeDistSquared < championDistSquared) {
+                championNode = lbNearest;
+            }
+        }
+
+        Node rtNearest = unconditionalFindNearest(p, node.rt, championNode);
+        if (rtNearest != null) {
+            double rtNodeDistSquared = rtNearest.p.distanceSquaredTo(p);
+            if (rtNodeDistSquared < championDistSquared) {
+                championNode = rtNearest;
+            }
+        }
+
+        return championNode;
+    }
+
+    private Node findNearest(Point2D p, Node node, Node championNode) {
+        if (node == null) return null;
+
+        double championDistSquared = championNode.p.distanceSquaredTo(p);
+        double nodeDistSquared = node.p.distanceSquaredTo(p);
+        if (nodeDistSquared < championDistSquared) {
+            championNode = node; // update
+            championDistSquared = nodeDistSquared;
+        }
+
+        Node morePromisingNode = null, lessPromisingNode = null;
+
+        //if (node.lb != null && node.lb.rect.contains(p)) {
+        if (node.comp == Node.COMPARE_X && p.x() < node.p.x() ||
+            node.comp == Node.COMPARE_Y && p.y() < node.p.y()) {
+                morePromisingNode = node.lb;
+                lessPromisingNode = node.rt;
+            // } else if (node.rt != null && node.rt.rect.contains(p)) {
+            } else {
+                morePromisingNode = node.rt;
+                lessPromisingNode = node.lb;
+            }
+
+        Node promisingNodeResult = findNearest(p, morePromisingNode, championNode); 
+        if (promisingNodeResult != null) {
+            double promisingResultDistSquared = promisingNodeResult.p.distanceSquaredTo(p);
+            if (promisingResultDistSquared < championDistSquared) {
+                championNode = promisingNodeResult;
+                championDistSquared = promisingResultDistSquared;
+            }
+        }
+
+        // boolean updated = false;
+        // double lessPromisingResultDistSquared1 = Double.POSITIVE_INFINITY;
+        // // unconditional greedy approach
+        // Node lessPromisingNodeResult1 = findNearest(p, lessPromisingNode, championNode); 
+        // if (lessPromisingNodeResult1 != null) {
+            // lessPromisingResultDistSquared1 = lessPromisingNodeResult1.p.distanceSquaredTo(p);
+            // if (lessPromisingResultDistSquared1 < championDistSquared) {
+                // championNode = lessPromisingNodeResult1;
+                // championDistSquared = lessPromisingResultDistSquared1;
+                // updated = true;
+            // }
+        // }
+
+
+        if (lessPromisingNode != null) {
+            double lessPromisingPossibleDistSqared = lessPromisingNode.rect.distanceSquaredTo(p);
+            if (lessPromisingPossibleDistSqared < championDistSquared) {
+                Node lessPromisingNodeResult = findNearest(p, lessPromisingNode, championNode); 
+                double lessPromisingResultDistSquared = lessPromisingNodeResult.p.distanceSquaredTo(p);
+                if (lessPromisingResultDistSquared < championDistSquared) {
+                    championNode = lessPromisingNodeResult;
+                } else {
+
+                    // debug
+                    // if (updated) {
+                        // System.out.printf(
+                            // "computerd less promising dist: %f\nmissed less promising dist: %f\n",
+                            // lessPromisingResultDistSquared1, lessPromisingPossibleDistSqared
+                        // );
+                    // }
+                }
+            }
+        }
+
+        return championNode;
     }
 
     public boolean contains(Point2D p) {
