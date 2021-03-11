@@ -4,10 +4,13 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 
 public class SAP {
+
     private Digraph graph;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
+        if (G == null) throw new IllegalArgumentException();
+
         Digraph defensiveGraphCopy = new Digraph(G);
         this.graph = defensiveGraphCopy;
     }
@@ -25,19 +28,37 @@ public class SAP {
     }
 
 
+    private boolean validateVertexIndex(int vertex) {
+        return vertex >= 0 && vertex < graph.V();
+    }
+
+
+    private boolean validateVertexIndex(Iterable<Integer> vertices) {
+        for (int vertex : vertices) {
+            if (vertex < 0 && vertex >= graph.V()) return false;
+        }
+
+        return true;
+    }
+
+
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
+
         return sapAncestorOrLength(v, w, true);
     }
 
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+
         return sapAncestorOrLength(v, w, false);
     }
 
 
     private int sapAncestorOrLength(int v, int w, boolean returnLength) {
+        if (!validateVertexIndex(v) || !validateVertexIndex(w)) throw new IllegalArgumentException();
+
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(this.graph, v);        
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(this.graph, w);
 
@@ -46,6 +67,9 @@ public class SAP {
 
 
     private int sapAncestorOrLength(Iterable<Integer> v, Iterable<Integer> w, boolean returnLength) {
+        if (v == null || w == null) throw new IllegalArgumentException();
+        if (!validateVertexIndex(v) || !validateVertexIndex(w)) throw new IllegalArgumentException();
+
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(this.graph, v);        
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(this.graph, w);
 
