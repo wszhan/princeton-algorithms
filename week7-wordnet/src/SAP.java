@@ -34,7 +34,10 @@ public class SAP {
 
 
     private boolean validateVertexIndex(Iterable<Integer> vertices) {
-        for (int vertex : vertices) {
+        if (vertices == null) throw new IllegalArgumentException("null iterable input");
+
+        for (Integer vertex : vertices) {
+            if (vertex == null) throw new IllegalArgumentException("null element in vertices");
             if (vertex < 0 && vertex >= graph.V()) return false;
         }
 
@@ -67,8 +70,14 @@ public class SAP {
 
 
     private int sapAncestorOrLength(Iterable<Integer> v, Iterable<Integer> w, boolean returnLength) {
-        if (v == null || w == null) throw new IllegalArgumentException();
         if (!validateVertexIndex(v) || !validateVertexIndex(w)) throw new IllegalArgumentException();
+
+        int countV = 0;
+        int countW = 0;
+        for (int vItem : v) countV++;
+        if (countV == 0) return -1;
+        for (int wItem : w) countW++;
+        if (countW == 0) return -1;
 
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(this.graph, v);        
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(this.graph, w);
@@ -195,7 +204,7 @@ public class SAP {
         v.add(1); v.add(0);
 
         w = new Bag<Integer>();
-        w.add(3); w.add(4);
+        w.add(3); w.add(4); w.add(null);
 
         shortestPathAncestor = sap.ancestor(v, w);
         assert shortestPathAncestor == 3 || shortestPathAncestor == 0;

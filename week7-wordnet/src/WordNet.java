@@ -62,7 +62,9 @@ public class WordNet {
         // synsets to hypernyms
         int rootIndex = -1;
         Topological checkRootedDAG = new Topological(graph);
-        for (int i : checkRootedDAG.order()) {
+        Iterable<Integer> orderedElements = checkRootedDAG.order();
+        if (orderedElements == null) throw new IllegalStateException("not DAG");
+        for (int i : orderedElements) {
             if (graph.outdegree(i) == 0) {
                 if (rootIndex >= 0) {
                     throw new IllegalArgumentException("not rooted");
@@ -115,6 +117,7 @@ public class WordNet {
 
     public static void main(String[] args) {
         // System.out.printf("args length: %d\n", args.length);
+        
         if (args != null && args.length == 2) {
             String synsetsFileName = args[0];
             String hypernymsFileName = args[1];
@@ -140,6 +143,11 @@ public class WordNet {
             wordB = "happening";
             dist = wn.distance(wordA, wordB);
             assert dist == 1;
+        } else {
+            String synsetsFileName = "synsets6.txt";
+            String hypernymsFileName = "hypernyms6InvalidCycle.txt";
+
+            WordNet wn = new WordNet(synsetsFileName, hypernymsFileName);
         }
     }
 }
