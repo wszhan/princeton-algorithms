@@ -3,7 +3,7 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Outcast {
 
-    private WordNet wordnet;
+    private final WordNet wordnet;
 
     // constructor takes a WordNet object
     public Outcast(WordNet wordnet) {

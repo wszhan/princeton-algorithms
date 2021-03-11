@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.In;
 
 public class SAP {
 
-    private Digraph graph;
+    private final Digraph graph;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
@@ -153,7 +153,8 @@ public class SAP {
 
         // digraph 1 - ancestor of two sets of vertices
         v = new Bag<Integer>();
-        v.add(10); v.add(9);
+        v.add(10); 
+        v.add(9);
 
         w = new Bag<Integer>();
         w.add(7); w.add(4);

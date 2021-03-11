@@ -2,24 +2,21 @@ import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.LinearProbingHashST;
+import edu.princeton.cs.algs4.Topological;
 
 public class WordNet {
 
     private static final String CSV_DELIMITER = ",";
     private static final String SYNSET_DELIMITER = " ";
 
-    // private SeparateChainingHashST<String, Integer> st;
-    private LinearProbingHashST<String, Bag<Integer>> synsetsTable;
-    private LinearProbingHashST<Integer, String> synsetsTableReversed;
-    private String[] keys;
-    private Digraph digraph;
-    private SAP sap;
+    private final LinearProbingHashST<String, Bag<Integer>> synsetsTable;
+    private final LinearProbingHashST<Integer, String> synsetsTableReversed;
+    private final SAP sap;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
         if (synsets == null || hypernyms == null) throw new IllegalArgumentException();
 
-        // st = new SeparateChainingHashST<String, Integer>();
         synsetsTable = new LinearProbingHashST<String, Bag<Integer>>();
         synsetsTableReversed = new LinearProbingHashST<Integer, String>();
 
@@ -46,13 +43,6 @@ public class WordNet {
             numberOfVertices++;
         }
 
-        // System.out.printf(
-        //     "String %s\nIDs:\n", "Aberdeen"
-        // );
-        // for (int i : synsetsTable.get("Aberdeen")) {
-        //     System.out.printf("%d\t", i);
-        // }
-
         // 2. use hypernym file to build digraph
         Digraph graph = new Digraph(numberOfVertices);
         In hypernymsIn = new In(hypernyms);
@@ -65,13 +55,24 @@ public class WordNet {
             }
         }
 
-        // System.out.printf(
-        //     "number of vertices: %d\nnumber of edges: %d\n",
-        //     graph.V(), graph.E()
-        // );
+        // input graph must be rooted DAG
+        // DirectedCycle checkCycle = new DirectedCycle(graph);
+        // if (checkCycle.hasCycle()) throw new IllegalStateException();
+        // NOTE that the root has no outgoing degree, the edge points from
+        // synsets to hypernyms
+        int rootIndex = -1;
+        Topological checkRootedDAG = new Topological(graph);
+        for (int i : checkRootedDAG.order()) {
+            if (graph.outdegree(i) == 0) {
+                if (rootIndex >= 0) {
+                    throw new IllegalArgumentException("not rooted");
+                } else {
+                    rootIndex = i;
+                }
+            }
+        }
 
         this.sap = new SAP(graph);
-        this.digraph = graph;
     }
 
 
@@ -117,11 +118,6 @@ public class WordNet {
         if (args != null && args.length == 2) {
             String synsetsFileName = args[0];
             String hypernymsFileName = args[1];
-            // System.out.printf("args[0]: %s\nargs[1]: %s\n", args[0], args[1]);
-
-            // System.out.printf(
-            //     "synset file: %s\nhypernyms file: %s\n",
-            //     synsetsFileName, hypernymsFileName);
 
             WordNet wn = new WordNet(synsetsFileName, hypernymsFileName);
             // Digraph graph = wn.getGraph();
