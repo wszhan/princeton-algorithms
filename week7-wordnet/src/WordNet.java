@@ -1,8 +1,9 @@
 import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.LinearProbingHashST;
-import edu.princeton.cs.algs4.Topological;
+
 
 public class WordNet {
 
@@ -21,6 +22,7 @@ public class WordNet {
         synsetsTableReversed = new LinearProbingHashST<Integer, String>();
 
         int numberOfVertices = 0;
+        int numberOfVerticesWithParents = 0; 
 
         // 1. use synsets file to build symbol table string/word -> integer/index
         In synsetsIn = new In(synsets);
@@ -53,25 +55,17 @@ public class WordNet {
                 int w = Integer.parseInt(vertices[i]);
                 graph.addEdge(v, w);
             }
+            numberOfVerticesWithParents++;
         }
 
         // input graph must be rooted DAG
-        // DirectedCycle checkCycle = new DirectedCycle(graph);
-        // if (checkCycle.hasCycle()) throw new IllegalStateException();
         // NOTE that the root has no outgoing degree, the edge points from
         // synsets to hypernyms
-        int rootIndex = -1;
-        Topological checkRootedDAG = new Topological(graph);
-        Iterable<Integer> orderedElements = checkRootedDAG.order();
-        if (orderedElements == null) throw new IllegalStateException("not DAG");
-        for (int i : orderedElements) {
-            if (graph.outdegree(i) == 0) {
-                if (rootIndex >= 0) {
-                    throw new IllegalArgumentException("not rooted");
-                } else {
-                    rootIndex = i;
-                }
-            }
+        DirectedCycle checkCycle = new DirectedCycle(graph);
+        if (checkCycle.hasCycle()) throw new IllegalArgumentException("not DAG");
+        // check for single source
+        if (numberOfVertices > numberOfVerticesWithParents + 1) {
+            throw new IllegalArgumentException("not rooted (multiple source tree)"); // credit to Danijel Temraz
         }
 
         this.sap = new SAP(graph);
@@ -102,6 +96,7 @@ public class WordNet {
         return dist;
     }
 
+
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
@@ -114,6 +109,7 @@ public class WordNet {
         int ancestor = sap.ancestor(v, w);
         return synsetsTableReversed.get(ancestor);
     }
+
 
     public static void main(String[] args) {
         // System.out.printf("args length: %d\n", args.length);
@@ -146,6 +142,7 @@ public class WordNet {
         } else {
             String synsetsFileName = "synsets6.txt";
             String hypernymsFileName = "hypernyms6InvalidCycle.txt";
+            // String hypernymsFileName = "hypernyms6InvalidTwoRoots.txt";
 
             WordNet wn = new WordNet(synsetsFileName, hypernymsFileName);
         }
